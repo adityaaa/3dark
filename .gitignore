@@ -24,3 +24,5 @@ yarn-error.log*
 
 # macOS
 .DS_Store
+
+/lib/generated/prisma

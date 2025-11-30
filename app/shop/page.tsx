@@ -1,13 +1,19 @@
 import Link from "next/link";
-import { products } from "@/lib/products";
+import { prisma } from "@/lib/prisma";
+import { mapProduct } from "@/lib/storeProducts";
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const productsDb = await prisma.product.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+  const products = productsDb.map(mapProduct);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Shop</h1>
         <p className="text-xs text-white/60">
-          Glow level 1–5 • Imported designs • Limited stock
+          Glow-in-the-dark tees, imported and curated.
         </p>
       </div>
 
