@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const order = await prisma.order.update({
       where: { id: Number.parseInt(orderId) },
       data: {
-        paymentId: razorpay_payment_id,
+        razorpayPaymentId: razorpay_payment_id,
         paymentStatus: "paid",
         orderStatus: "confirmed",
       },

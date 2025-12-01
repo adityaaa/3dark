@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         await prisma.order.update({
           where: { orderNumber },
           data: {
-            paymentId: paymentEntity.id,
+            razorpayPaymentId: paymentEntity.id,
             paymentStatus: "paid",
             orderStatus: "confirmed",
           },
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         await prisma.order.update({
           where: { orderNumber },
           data: {
-            paymentId: paymentEntity.id,
+            razorpayPaymentId: paymentEntity.id,
             paymentStatus: "failed",
           },
         });
