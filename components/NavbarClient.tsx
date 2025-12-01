@@ -29,7 +29,7 @@ export default function NavbarClient() {
           <Link href="/support" className="hover:text-neon">
             Support
           </Link>
-          <Link href="/checkout" className="relative">
+          <Link href="/cart" className="relative hover:text-neon">
             Cart
             {itemCount > 0 && (
               <span className="ml-1 rounded-full bg-neon px-1.5 py-0.5 text-xs text-black">

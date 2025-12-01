@@ -31,8 +31,9 @@ export default function CheckoutClient() {
   const [status, setStatus] = useState<"idle" | "processing" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const shipping = cartTotal >= 1500 ? 0 : 50;
-  const total = cartTotal + shipping;
+  // Free shipping for all orders
+  const shipping = 0;
+  const total = cartTotal;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -321,18 +322,13 @@ export default function CheckoutClient() {
             </div>
             <div className="flex justify-between">
               <span className="text-white/60">Shipping</span>
-              <span>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
+              <span className="text-green-500">FREE</span>
             </div>
             <div className="flex justify-between text-lg font-semibold pt-2 border-t border-white/10">
               <span>Total</span>
               <span>₹{total}</span>
             </div>
           </div>
-          {cartTotal < 1500 && (
-            <p className="mt-3 text-xs text-neon/80">
-              Add ₹{1500 - cartTotal} more for FREE shipping!
-            </p>
-          )}
         </div>
       </div>
     </div>

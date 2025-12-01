@@ -1,19 +1,44 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateOrderNumber, calculateShipping } from "@/lib/payment";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    console.log("=== CHECKOUT REQUEST ===");
+    console.log("Full body:", JSON.stringify(body, null, 2));
+    
     const { customer, items, paymentMethod } = body;
+    
+    console.log("Parsed values:");
+    console.log("- customer:", customer);
+    console.log("- items:", items);
+    console.log("- paymentMethod:", paymentMethod);
 
     // Validate input
     if (!customer || !items || items.length === 0) {
+      console.error("❌ VALIDATION FAILED");
+      console.error("- hasCustomer:", !!customer);
+      console.error("- hasItems:", !!items);
+      console.error("- itemsLength:", items?.length);
+      console.error("- customerKeys:", customer ? Object.keys(customer) : "null");
+      
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { 
+          error: "Missing required fields", 
+          debug: { 
+            hasCustomer: !!customer, 
+            hasItems: !!items, 
+            itemsLength: items?.length,
+            receivedKeys: Object.keys(body)
+          } 
+        },
         { status: 400 }
       );
     }
+    
+    console.log("✅ Validation passed");
 
     // Calculate totals
     const subtotal = items.reduce(
@@ -58,6 +83,34 @@ export async function POST(req: Request) {
         items: true,
       },
     });
+
+    // Send order confirmation email
+    try {
+      await sendOrderConfirmationEmail({
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        items: order.items.map((item) => ({
+          name: item.name,
+          size: item.size,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        subtotal: order.subtotal,
+        shipping: order.shipping,
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+        city: order.city,
+        state: order.state,
+        pincode: order.pincode,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
+      });
+      console.log("✅ Order confirmation email sent");
+    } catch (emailError) {
+      console.error("❌ Failed to send order confirmation email:", emailError);
+      // Don't fail the order if email fails
+    }
 
     // If COD, return success immediately
     if (paymentMethod === "cod") {

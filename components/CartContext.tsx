@@ -7,6 +7,7 @@ type CartContextType = {
   items: CartItem[];
   addItem: (product: StoreProduct, size: string, qty?: number) => void;
   removeItem: (productId: number, size: string) => void;
+  updateQuantity: (productId: number, size: string, qty: number) => void;
   clear: () => void;
   total: number;
 };
@@ -36,6 +37,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  function updateQuantity(productId: number, size: string, qty: number) {
+    if (qty <= 0) {
+      removeItem(productId, size);
+      return;
+    }
+    setItems((prev) => {
+      const idx = prev.findIndex(
+        (i) => i.product.id === productId && i.size === size
+      );
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], qty };
+        return copy;
+      }
+      return prev;
+    });
+  }
+
   function clear() {
     setItems([]);
   }
@@ -46,7 +65,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clear, total }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clear, total }}>
       {children}
     </CartContext.Provider>
   );

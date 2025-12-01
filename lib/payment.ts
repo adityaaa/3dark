@@ -11,10 +11,10 @@ export function generateOrderNumber(): string {
 
 /**
  * Calculate shipping cost based on order total
+ * Currently: Free shipping on all orders
  */
 export function calculateShipping(subtotal: number): number {
-  if (subtotal >= 1500) return 0; // Free shipping above ₹1500
-  return 50; // Flat ₹50 shipping
+  return 0; // Free shipping for all orders
 }
 
 /**
