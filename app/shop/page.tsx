@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { mapProduct } from "@/lib/storeProducts";
+import { prisma } from "@/lib/db";
+import { mapProduct } from "@/lib/utils";
 import Image from "next/image";
 
 export default async function ShopPage() {
@@ -25,14 +25,15 @@ export default async function ShopPage() {
             href={`/product/${p.slug}`}
             className="group rounded-2xl bg-bg-soft/80 p-3 border border-white/5 hover:border-neon/40 hover:shadow-glow transition"
           >
-            <div className="relative h-40 w-full rounded-xl overflow-hidden bg-black/50">
+            <div className="relative h-64 w-full overflow-hidden rounded-2xl bg-black/60">
               <Image
                 src={p.image}
                 alt={p.name}
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
+
 
             <div className="mt-3 flex flex-col gap-1">
               <span className="text-sm font-medium group-hover:text-neon">

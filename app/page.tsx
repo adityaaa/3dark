@@ -1,97 +1,133 @@
+// app/page.tsx
 import Link from "next/link";
-import { products } from "@/lib/products";
+import Image from "next/image";
+import { prisma } from "@/lib/db";
+import { mapProduct } from "@/lib/utils";
 
-export default function HomePage() {
-  const top = products.slice(0, 3);
+export default async function HomePage() {
+  const productsDb = await prisma.product.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
+
+  const top = productsDb.map(mapProduct);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <section className="grid gap-8 md:grid-cols-2 items-center">
-        <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-neon">
-            glow in the dark apparel
-          </p>
-          <h1 className="mt-3 text-4xl md:text-5xl font-semibold leading-tight">
-            Look normal in the light.
-            <span className="text-neon block">
-              Turn legendary in the dark.
-            </span>
-          </h1>
-          <p className="mt-4 text-sm text-white/70">
-            3Dark brings hyper-detailed glow-in-the-dark tees imported from
-            Thailand – built for riders, gamers, and night walks.
-          </p>
-          <div className="mt-6 flex gap-3">
-            <Link
-              href="/shop"
-              className="rounded-full bg-neon px-5 py-2 text-sm font-semibold text-black shadow-glow hover:brightness-95"
-            >
-              Shop now
-            </Link>
-            <Link
-              href="/lookbook"
-              className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/80 hover:border-neon hover:text-neon"
-            >
-              View lookbook
-            </Link>
-          </div>
-          <p className="mt-4 text-xs text-white/50">
-            Try our AI stylist in the corner – tell it where you&apos;re going and it will pick a tee.
-          </p>
-        </div>
-
-        <div className="relative flex h-72 items-center justify-center rounded-3xl bg-gradient-to-tr from-bg-soft via-black to-bg-soft shadow-glow">
-          <div className="absolute inset-6 rounded-3xl border border-neon/30" />
-          <span className="text-xs text-white/60 absolute top-4 left-4">
-            Live Glow Preview (mocked)
-          </span>
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-40 w-28 rounded-xl bg-gradient-to-b from-neon/10 via-black to-neon/20 border border-neon/40 flex items-center justify-center">
-              <span className="text-xs text-neon text-center px-2">
-                T-shirt area – brighten in dark mode
-              </span>
-            </div>
-            <p className="text-xs text-white/60">
-              Later you can swap this with a real 3D or AI simulation.
+    <div className="min-h-screen bg-black text-white">
+      {/* HERO */}
+      <section className="relative overflow-hidden border-b border-white/10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,255,180,0.22),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(0,140,255,0.18),_transparent_55%)]" />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 md:flex-row md:items-center md:py-20">
+          <div className="flex-1 space-y-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+              3Dark • GLOW-IN-THE-DARK OUTFITS
             </p>
+            <h1 className="text-3xl font-semibold leading-tight md:text-4xl">
+              Hyper-realistic glow gear
+              <br />
+              built for the night.
+            </h1>
+            <p className="max-w-xl text-sm text-white/70">
+              Premium glow-in-the-dark apparel engineered for riders, gamers,
+              and night-life. Charge it in light. Watch it come alive in the
+              dark.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/shop"
+                className="rounded-full bg-neon px-6 py-2 text-xs font-semibold text-black shadow-glow hover:brightness-95"
+              >
+                Shop now
+              </Link>
+              <Link
+                href="/lookbook"
+                className="rounded-full border border-white/30 px-6 py-2 text-xs font-semibold text-white/80 hover:border-neon hover:text-neon"
+              >
+                View lookbook
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-1 justify-center md:mt-0">
+            <div className="relative h-64 w-64 overflow-hidden rounded-[2rem] border border-neon/40 bg-gradient-to-br from-black via-black to-neon/20 shadow-glow">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,255,180,0.3),transparent_55%),radial-gradient(circle_at_70%_80%,rgba(0,120,255,0.35),transparent_55%)]" />
+              <div className="relative flex h-full flex-col items-center justify-center gap-2 px-5 text-center text-xs text-white/70">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-white/60">
+                  Night-ready
+                </span>
+                <p className="text-sm font-medium">
+                  Charges in 10–15 minutes,
+                  <br />
+                  glows for hours in low light.
+                </p>
+                <p className="text-[11px] text-white/60">
+                  Perfect for rides, concerts, and late-night streets.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mt-12">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Bestsellers</h2>
-          <Link href="/shop" className="text-xs text-neon">
+      {/* FEATURED PRODUCTS */}
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <h2 className="text-sm font-semibold tracking-[0.2em] text-white/70 uppercase">
+            Featured drops
+          </h2>
+          <Link
+            href="/shop"
+            className="text-[11px] text-neon hover:underline"
+          >
             View all →
           </Link>
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          {top.map((p) => (
-            <Link
-              key={p.id}
-              href={`/product/${p.slug}`}
-              className="group rounded-2xl bg-bg-soft/80 p-3 border border-white/5 hover:border-neon/40 hover:shadow-glow transition"
-            >
-              <div className="h-40 w-full rounded-xl bg-black/50 flex items-center justify-center text-xs text-white/50">
-                {p.name} image
-              </div>
-              <div className="mt-3 flex flex-col gap-1">
-                <span className="text-sm font-medium group-hover:text-neon">
-                  {p.name}
-                </span>
-                <span className="text-[11px] uppercase tracking-wide text-white/40">
-                  {p.brand}
-                </span>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="text-sm font-semibold">₹{p.price}</span>
-                  <span className="text-[11px] line-through text-white/40">
-                    ₹{p.mrp}
-                  </span>
-                </div>
-              </div>
+
+        {top.length === 0 ? (
+          <p className="text-sm text-white/60">
+            No products yet. Add some from{" "}
+            <Link href="/admin/products" className="text-neon underline">
+              Admin &gt; Products
             </Link>
-          ))}
-        </div>
+            .
+          </p>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-3">
+            {top.map((p) => (
+              <Link
+                key={p.id}
+                href={`/product/${p.slug}`}
+                className="group rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-neon/70 hover:bg-white/10"
+              >
+                <div className="relative mb-3 h-56 w-full overflow-hidden rounded-xl bg-black/60">
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    fill
+                    className="object-contain transition-transform duration-300 group-hover:scale-[1.01]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">
+                    {p.brand}
+                  </p>
+                  <p className="text-sm font-medium line-clamp-1">
+                    {p.name}
+                  </p>
+                  <p className="text-xs text-white/60 line-clamp-2">
+                    {p.description}
+                  </p>
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    <span className="font-semibold">₹{p.price}</span>
+                    <span className="text-[11px] text-white/50">
+                      Glow {p.glowLevel}/5
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

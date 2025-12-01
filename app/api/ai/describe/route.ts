@@ -4,16 +4,17 @@ import OpenAI from "openai";
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
-  const { product } = await req.json();
+  try {
+    const { product } = await req.json();
 
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json(
-      { description: product.description },
-      { status: 200 }
-    );
-  }
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        { description: product.description },
+        { status: 200 }
+      );
+    }
 
-  const prompt = `Write a short, high-converting product description for a glow-in-the-dark T-shirt.
+    const prompt = `Write a short, high-converting product description for a glow-in-the-dark T-shirt.
 
 Name: ${product.name}
 Brand: ${product.brand}
@@ -22,20 +23,20 @@ Glow level: ${product.glowLevel}/5
 Audience: Indian buyers who love night rides, gaming, and parties.
 Tone: punchy, modern, 2–3 sentences.`;
 
-  const completion = await client.responses.create({
-    model: "gpt-4.1-mini",
-    input: prompt
-  });
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 150
+    });
 
-  // naive extraction
-  const text =
-    (completion.output &&
-      completion.output[0] &&
-      completion.output[0].content &&
-      completion.output[0].content[0] &&
-      // @ts-ignore
-      completion.output[0].content[0].text) ||
-    product.description;
+    const text = completion.choices[0]?.message?.content || product.description;
 
-  return NextResponse.json({ description: text });
+    return NextResponse.json({ description: text });
+  } catch (error) {
+    console.error("AI Describe error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate description" },
+      { status: 500 }
+    );
+  }
 }
