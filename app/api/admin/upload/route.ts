@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       savedPaths.push(`/products/${filename}`);
     }
 
-    return NextResponse.json({ paths: savedPaths }, { status: 201 });
+    return NextResponse.json({ urls: savedPaths }, { status: 201 });
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json(
