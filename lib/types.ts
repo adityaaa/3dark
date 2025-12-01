@@ -45,3 +45,62 @@ export type CartItem = {
   size: string;
   qty: number;
 };
+
+/**
+ * CheckoutFormData - Customer information for checkout
+ */
+export type CheckoutFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  notes?: string;
+};
+
+/**
+ * Order - Order representation
+ */
+export type Order = {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: string;
+  city: string;
+  state: string;
+  pincode: string;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  paymentMethod: string;
+  paymentStatus: string;
+  paymentId?: string | null;
+  orderStatus: string;
+  notes?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+/**
+ * OrderItem - Individual item in an order
+ */
+export type OrderItem = {
+  id: number;
+  orderId: number;
+  productId: number;
+  name: string;
+  size: string;
+  quantity: number;
+  price: number;
+};
+
+/**
+ * OrderWithItems - Order with its items populated
+ */
+export type OrderWithItems = Order & {
+  items: OrderItem[];
+};
