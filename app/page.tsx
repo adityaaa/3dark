@@ -4,6 +4,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { mapProduct } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const productsDb = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
