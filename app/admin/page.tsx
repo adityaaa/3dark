@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Package, ShoppingCart, DollarSign, Users } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   // Get stats
   const [orderCount, productCount, recentOrders] = await Promise.all([

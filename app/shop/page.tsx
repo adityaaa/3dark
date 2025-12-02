@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { mapProduct } from "@/lib/utils";
 import Image from "next/image";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ShopPage() {
   const productsDb = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
