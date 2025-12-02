@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { prisma } from "@/lib/db";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = process.env.OPENAI_API_KEY 
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 export async function POST(req: Request) {
   try {
@@ -30,7 +32,7 @@ User message: "${message}".
 
 Respond in at most 3 sentences. Recommend 1–3 specific tees by name + slug and explain why (occasion/style).`;
 
-    const completion = await client.chat.completions.create({
+    const completion = await client!.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 200
