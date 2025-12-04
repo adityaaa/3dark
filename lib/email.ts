@@ -1,33 +1,23 @@
-// lib/email.ts - Email service using Nodemailer
-import nodemailer from "nodemailer";
+// lib/email.ts - Email service using Resend
+import { Resend } from "resend";
 
-// Email configuration from environment variables
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-if (!smtpUser || !smtpPass) {
-  console.warn("⚠️  SMTP credentials not configured. Email sending will be disabled.");
-  console.warn("   Please set SMTP_USER and SMTP_PASS in .env.local");
+if (!process.env.RESEND_API_KEY) {
+  console.warn("⚠️  RESEND_API_KEY not configured. Email sending will be disabled.");
+  console.warn("   Please set RESEND_API_KEY in .env.local");
 }
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: Number.parseInt(process.env.SMTP_PORT || "587"),
-  secure: false, // true for 465, false for other ports
-  auth: smtpUser && smtpPass ? {
-    user: smtpUser,
-    pass: smtpPass,
-  } : undefined,
-});
-
-// Verify transporter configuration
+// Verify email configuration
 export async function verifyEmailConfig() {
   try {
-    await transporter.verify();
-    console.log("✅ Email server is ready");
+    if (!process.env.RESEND_API_KEY) {
+      return false;
+    }
+    console.log("✅ Email service (Resend) is configured");
     return true;
   } catch (error) {
-    console.error("❌ Email server error:", error);
+    console.error("❌ Email service error:", error);
     return false;
   }
 }
@@ -45,16 +35,26 @@ export async function sendEmail({
   text?: string;
 }) {
   try {
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || '"3Dark" <noreply@3dark.com>',
-      to,
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("⚠️ Email not sent: RESEND_API_KEY not configured");
+      return null;
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || "3Dark <orders@3dark.in>",
+      to: [to],
       subject,
       html,
       text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML for text version
     });
 
-    console.log("✅ Email sent:", info.messageId);
-    return { success: true, messageId: info.messageId };
+    if (error) {
+      console.error("❌ Email send error:", error);
+      return { success: false, error };
+    }
+
+    console.log("✅ Email sent:", data?.id);
+    return { success: true, messageId: data?.id };
   } catch (error) {
     console.error("❌ Email send error:", error);
     return { success: false, error };
