@@ -26,3 +26,8 @@ yarn-error.log*
 .DS_Store
 
 /lib/generated/prisma
+
+# Test scripts
+scripts/test-*.js
+scripts/test-*.ts
+scripts/check-*.ts
