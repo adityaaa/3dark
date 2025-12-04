@@ -132,7 +132,7 @@ export function generateOrderConfirmationEmail(order: {
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 40px 30px; text-align: center;">
-              <img src="${process.env.NEXT_PUBLIC_SITE_URL || "https://3dark.in"}/logos/logo.png" alt="3Dark Logo" width="80" height="80" style="margin: 0 auto 20px; display: block;" />
+              <img src="https://3dark.in/logos/logo.png" alt="3Dark Logo" width="80" height="80" style="margin: 0 auto 20px; display: block;" />
               <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">3DARK</h1>
               <p style="margin: 10px 0 0 0; color: #a0a0a0; font-size: 14px;">Wild Animal Fashion</p>
             </td>
@@ -336,7 +336,7 @@ export async function sendOrderStatusEmail(
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 40px 30px; text-align: center;">
-              <img src="${process.env.NEXT_PUBLIC_SITE_URL || "https://3dark.in"}/logos/logo.png" alt="3Dark Logo" width="80" height="80" style="margin: 0 auto 20px; display: block;" />
+              <img src="https://3dark.in/logos/logo.png" alt="3Dark Logo" width="80" height="80" style="margin: 0 auto 20px; display: block;" />
               <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">3DARK</h1>
             </td>
           </tr>
