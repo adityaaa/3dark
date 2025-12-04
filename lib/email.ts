@@ -1,11 +1,20 @@
 // lib/email.ts - Email service using Resend
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy-load Resend client to avoid build-time errors
+let resend: Resend | null = null;
 
-if (!process.env.RESEND_API_KEY) {
-  console.warn("⚠️  RESEND_API_KEY not configured. Email sending will be disabled.");
-  console.warn("   Please set RESEND_API_KEY in .env.local");
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("⚠️  RESEND_API_KEY not configured. Email sending will be disabled.");
+    return null;
+  }
+  
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  
+  return resend;
 }
 
 // Verify email configuration
@@ -35,17 +44,19 @@ export async function sendEmail({
   text?: string;
 }) {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    const client = getResendClient();
+    
+    if (!client) {
       console.warn("⚠️ Email not sent: RESEND_API_KEY not configured");
       return null;
     }
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: process.env.EMAIL_FROM || "3Dark <orders@3dark.in>",
       to: [to],
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML for text version
+      text: text || html.replaceAll(/<[^>]*>/g, ""), // Strip HTML for text version
     });
 
     if (error) {
