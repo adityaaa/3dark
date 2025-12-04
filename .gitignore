@@ -31,3 +31,4 @@ yarn-error.log*
 scripts/test-*.js
 scripts/test-*.ts
 scripts/check-*.ts
+.DS_Store
