@@ -65,7 +65,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link
             href="/admin/orders"
             className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors"
@@ -83,6 +83,16 @@ export default async function AdminDashboard() {
             <h2 className="text-2xl font-bold mb-2">🛍️ Manage Products</h2>
             <p className="text-gray-400">
               Add, edit, or remove products from your store catalog
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/settings"
+            className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors"
+          >
+            <h2 className="text-2xl font-bold mb-2">⚙️ Settings</h2>
+            <p className="text-gray-400">
+              Update your profile, change password, and manage account settings
             </p>
           </Link>
         </div>
