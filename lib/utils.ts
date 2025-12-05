@@ -20,7 +20,7 @@ export function mapProduct(p: Product): StoreProduct {
   const baseImageRaw = p.image || "";
   const baseImage = baseImageRaw.startsWith("/")
     ? baseImageRaw
-    : `/${baseImageRaw.replace(/^public[\\/]/, "")}`;
+    : `/products/${baseImageRaw.replace(/^public[\\/]products[\\/]/, "")}`;
 
   // Parse gallery (comma-separated paths)
   const galleryList = p.gallery
@@ -33,7 +33,7 @@ export function mapProduct(p: Product): StoreProduct {
   const normalizedGallery = galleryList.map((path) =>
     path.startsWith("/")
       ? path
-      : `/${path.replace(/^public[\\/]/, "")}`
+      : `/products/${path.replace(/^public[\\/]products[\\/]/, "")}`
   );
 
   const images = normalizedGallery.length > 0
