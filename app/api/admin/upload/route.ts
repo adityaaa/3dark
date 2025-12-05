@@ -1,12 +1,22 @@
 // app/api/admin/upload/route.ts
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
 
@@ -17,26 +27,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const savedPaths: string[] = [];
+    const savedUrls: string[] = [];
 
     for (const file of files) {
-      // Normalise filename
-      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      // Normalize filename
+      const safeName = file.name.replaceAll(/[^a-zA-Z0-9.\-_]/g, "_");
       const timestamp = Date.now();
-      const filename = `${timestamp}-${safeName}`;
+      const filename = `products/${timestamp}-${safeName}`;
 
-      const buffer = Buffer.from(await file.arrayBuffer());
+      // Upload to Vercel Blob
+      const blob = await put(filename, file, {
+        access: "public",
+      });
 
-      const folder = path.join(process.cwd(), "public", "products");
-      await fs.mkdir(folder, { recursive: true });
-
-      const filePath = path.join(folder, filename);
-      await fs.writeFile(filePath, buffer);
-
-      savedPaths.push(`/products/${filename}`);
+      savedUrls.push(blob.url);
     }
 
-    return NextResponse.json({ urls: savedPaths }, { status: 201 });
+    return NextResponse.json({ urls: savedUrls }, { status: 201 });
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json(
