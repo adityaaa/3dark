@@ -11,6 +11,7 @@ export async function POST(req: Request) {
     // Check authentication
     const session = await getServerSession(authOptions);
     if (!session) {
+      console.error("Upload failed: No session");
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -19,6 +20,8 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
+
+    console.log(`Upload request: ${files.length} file(s)`);
 
     if (!files || files.length === 0) {
       return NextResponse.json(
@@ -30,6 +33,8 @@ export async function POST(req: Request) {
     const savedUrls: string[] = [];
 
     for (const file of files) {
+      console.log(`Uploading file: ${file.name}, size: ${file.size} bytes`);
+      
       // Normalize filename
       const safeName = file.name.replaceAll(/[^a-zA-Z0-9.\-_]/g, "_");
       const timestamp = Date.now();
@@ -40,14 +45,16 @@ export async function POST(req: Request) {
         access: "public",
       });
 
+      console.log(`Uploaded successfully: ${blob.url}`);
       savedUrls.push(blob.url);
     }
 
+    console.log(`Upload complete: ${savedUrls.length} file(s) uploaded`);
     return NextResponse.json({ urls: savedUrls }, { status: 201 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Upload error:", err);
     return NextResponse.json(
-      { error: "Failed to upload files" },
+      { error: err?.message || "Failed to upload files" },
       { status: 500 }
     );
   }
