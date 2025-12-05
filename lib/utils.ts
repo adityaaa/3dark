@@ -16,11 +16,21 @@ export function mapProduct(p: Product): StoreProduct {
     ? p.sizes.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
 
-  // Normalize main image
+  // Normalize main image - handle both local paths and external URLs (Vercel Blob)
+  const normalizeImagePath = (path: string): string => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      return path; // External URL (Vercel Blob)
+    }
+    if (path.startsWith("/")) {
+      return path; // Already normalized local path
+    }
+    // Local path needs normalization
+    return `/products/${path.replace(/^public[\\/]products[\\/]/, "")}`;
+  };
+
   const baseImageRaw = p.image || "";
-  const baseImage = baseImageRaw.startsWith("/")
-    ? baseImageRaw
-    : `/products/${baseImageRaw.replace(/^public[\\/]products[\\/]/, "")}`;
+  const baseImage = normalizeImagePath(baseImageRaw);
 
   // Parse gallery (comma-separated paths)
   const galleryList = p.gallery
@@ -30,11 +40,7 @@ export function mapProduct(p: Product): StoreProduct {
         .filter(Boolean)
     : [];
 
-  const normalizedGallery = galleryList.map((path) =>
-    path.startsWith("/")
-      ? path
-      : `/products/${path.replace(/^public[\\/]products[\\/]/, "")}`
-  );
+  const normalizedGallery = galleryList.map(normalizeImagePath);
 
   const images = normalizedGallery.length > 0
     ? [baseImage, ...normalizedGallery]
