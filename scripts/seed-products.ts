@@ -69,7 +69,7 @@ async function main() {
       price,
       mrp,
       tags: tags.join(","),
-      sizes: category.toLowerCase().includes("freesize") ? "Free Size" : "S,M,L,XL,XXL",
+      sizes: category.toLowerCase().includes("freesize") ? "Free Size" : "S,M,L,XL,XXL,XXXL",
       sizePricing: null,
       image: filename,
       gallery: null,
