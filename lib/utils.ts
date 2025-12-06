@@ -108,3 +108,21 @@ export function applyBrandPricing(
     return product;
   }
 }
+
+/**
+ * Get the lowest price from size-specific pricing
+ * Used to show "starting from" price on product cards
+ */
+export function getLowestPrice(product: StoreProduct): { price: number; mrp: number } {
+  // If no size-specific pricing, use base price
+  if (!product.sizePricing || Object.keys(product.sizePricing).length === 0) {
+    return { price: product.price, mrp: product.mrp };
+  }
+
+  // Find the lowest price across all sizes
+  const prices = Object.values(product.sizePricing);
+  const lowestPrice = Math.min(...prices.map(p => p.price));
+  const correspondingMrp = prices.find(p => p.price === lowestPrice)?.mrp || product.mrp;
+
+  return { price: lowestPrice, mrp: correspondingMrp };
+}
