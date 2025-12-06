@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
-import { mapProduct } from "@/lib/utils";
+import { mapProduct, applyBrandPricing, getLowestPrice } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,16 @@ export default async function HomePage() {
     take: 3,
   });
 
-  const top = productsDb.map(mapProduct);
+  // Get all brand pricings
+  const brandPricings = await prisma.brandPricing.findMany();
+  const brandPricingMap = new Map(brandPricings.map(bp => [bp.brand, bp.sizePricing]));
+
+  // Map products and apply brand pricing
+  const top = productsDb.map(p => {
+    const product = mapProduct(p);
+    const brandPricing = brandPricingMap.get(p.brand);
+    return applyBrandPricing(product, brandPricing || null);
+  });
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -95,39 +104,44 @@ export default async function HomePage() {
           </p>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
-            {top.map((p) => (
-              <Link
-                key={p.id}
-                href={`/product/${p.slug}`}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-neon/70 hover:bg-white/10"
-              >
-                <div className="relative mb-3 h-56 w-full overflow-hidden rounded-xl bg-black/60">
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    fill
-                    className="object-contain transition-transform duration-300 group-hover:scale-[1.01]"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">
-                    {p.brand}
-                  </p>
-                  <p className="text-sm font-medium line-clamp-1">
-                    {p.name}
-                  </p>
-                  <p className="text-xs text-white/60 line-clamp-2">
-                    {p.description}
-                  </p>
-                  <div className="mt-2 flex items-center justify-between text-xs">
-                    <span className="font-semibold">₹{p.price}</span>
-                    <span className="text-[11px] text-white/50">
-                      {p.brand}
-                    </span>
+            {top.map((p) => {
+              const { price: displayPrice, mrp: displayMrp } = getLowestPrice(p);
+              return (
+                <Link
+                  key={p.id}
+                  href={`/product/${p.slug}`}
+                  className="group rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-neon/70 hover:bg-white/10"
+                >
+                  <div className="relative mb-3 h-56 w-full overflow-hidden rounded-xl bg-black/60">
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      fill
+                      className="object-contain transition-transform duration-300 group-hover:scale-[1.01]"
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="space-y-1">
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">
+                      {p.brand}
+                    </p>
+                    <p className="text-sm font-medium line-clamp-1">
+                      {p.name}
+                    </p>
+                    <p className="text-xs text-white/60 line-clamp-2">
+                      {p.description}
+                    </p>
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <span className="text-sm font-semibold">₹{displayPrice}</span>
+                      {displayMrp > displayPrice && (
+                        <span className="text-[11px] text-white/40 line-through">
+                          ₹{displayMrp}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

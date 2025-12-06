@@ -300,7 +300,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           <label className="text-xs text-white/70">
             Sizes{" "}
             <span className="text-[10px] text-white/40">
-              (comma separated: S, M, L, XL, XXL…)
+              (comma separated: S, M, L, XL, XXL, XXXL…)
             </span>
           </label>
           <input
@@ -318,7 +318,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               });
               setSizePricing(newPricing);
             }}
-            placeholder="S, M, L, XL, XXL"
+            placeholder="S, M, L, XL, XXL, XXXL"
           />
         </div>
 
