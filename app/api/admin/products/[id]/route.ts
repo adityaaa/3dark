@@ -36,10 +36,12 @@ export async function PUT(req: Request, { params }: RouteParams) {
         sizes: body.sizes,
         glowLevel: body.glowLevel,
         image: body.image,
+        gallery: body.gallery ?? null,
       },
     });
     return NextResponse.json(product);
   } catch (err) {
+    console.error("PUT /api/admin/products/[id] error:", err);
     return NextResponse.json(
       { error: "Failed to update product" },
       { status: 500 }
@@ -56,6 +58,7 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (err) {
+    console.error("DELETE /api/admin/products/[id] error:", err);
     return NextResponse.json(
       { error: "Failed to delete product" },
       { status: 500 }

@@ -38,7 +38,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
   const [images, setImages] = useState<string[]>(initialImages);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
   // for drag-and-drop
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -74,6 +76,8 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
     try {
       setError(null);
+      setUploadSuccess(null);
+      setIsUploading(true);
 
       // Upload files one by one to avoid payload size limit (4.5MB on Vercel)
       const uploadedUrls: string[] = [];
@@ -104,6 +108,8 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           
           if (data.urls && data.urls.length > 0) {
             uploadedUrls.push(...data.urls);
+            // Add images incrementally so user can see them appear
+            setImages((prev) => [...prev, ...data.urls]);
           }
 
           if (data.errors && data.errors.length > 0) {
@@ -115,22 +121,19 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         }
       }
 
-      // Add all successfully uploaded images
-      if (uploadedUrls.length > 0) {
-        setImages((prev) => [...prev, ...uploadedUrls]);
-      }
-
       // Show results
       if (failedUploads.length > 0) {
         setError(`${uploadedUrls.length} uploaded successfully. ${failedUploads.length} failed: ${failedUploads.join(", ")}`);
       } else if (uploadedUrls.length > 0) {
+        setUploadSuccess(`✓ ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully!`);
         // Success message will auto-clear
-        setTimeout(() => setError(null), 3000);
+        setTimeout(() => setUploadSuccess(null), 3000);
       }
     } catch (err: any) {
       console.error("Upload error:", err);
       setError(err.message || "Image upload failed. Please try again.");
     } finally {
+      setIsUploading(false);
       // reset input so same file can be selected again if needed
       e.target.value = "";
     }
@@ -193,6 +196,11 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   }
 
   const title = mode === "create" ? "Create Product" : "Edit Product";
+  const submitButtonText = isSaving
+    ? "Saving..."
+    : mode === "create"
+    ? "Create product"
+    : "Save changes";
 
   return (
     <form
@@ -308,13 +316,19 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           </p>
         )}
 
+        {uploadSuccess && (
+          <p className="text-xs text-green-400 bg-green-950/40 border border-green-500/40 rounded-md px-3 py-2">
+            {uploadSuccess}
+          </p>
+        )}
+
         <div className="pt-2">
           <button
             type="submit"
             disabled={isSaving}
             className="rounded-full bg-neon px-6 py-2 text-sm font-semibold text-black shadow-glow disabled:opacity-60"
           >
-            {isSaving ? "Saving..." : mode === "create" ? "Create product" : "Save changes"}
+            {submitButtonText}
           </button>
         </div>
       </div>
@@ -335,12 +349,26 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             <br />
             Then drag to reorder – first image becomes your hero image.
           </p>
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-white/15">
-            <span>Choose images</span>
+          <label
+            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-white ${
+              isUploading
+                ? "bg-white/5 cursor-wait"
+                : "bg-white/10 hover:bg-white/15"
+            }`}
+          >
+            {isUploading ? (
+              <>
+                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                <span>Uploading...</span>
+              </>
+            ) : (
+              <span>Choose images</span>
+            )}
             <input
               type="file"
               accept="image/*"
               multiple
+              disabled={isUploading}
               className="hidden"
               onChange={handleFileChange}
             />

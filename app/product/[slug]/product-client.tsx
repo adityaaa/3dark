@@ -23,41 +23,51 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
       {/* LEFT: gallery */}
       <div className="space-y-4">
         {/* Main image */}
-        <div className="relative h-80 md:h-[420px] w-full rounded-3xl bg-black/70 border border-neon/40 shadow-glow overflow-hidden">
+        <div className="relative h-80 md:h-[500px] w-full rounded-3xl bg-black/70 border border-neon/40 shadow-glow overflow-hidden">
           <Image
             src={activeImage}
             alt={product.name}
             fill
             priority
             sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-contain"
+            className="object-contain p-4"
           />
         </div>
 
         {/* Thumbnails */}
         {product.images.length > 1 && (
-          <div className="mt-2 flex gap-3 overflow-x-auto pb-1">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
             {product.images.map((img, idx) => (
               <button
                 key={img + idx}
                 type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`relative h-16 w-16 flex-shrink-0 rounded-xl border overflow-hidden bg-black/70 ${
+                className={`relative h-20 w-20 flex-shrink-0 rounded-xl border overflow-hidden bg-black/70 transition-all ${
                   idx === activeIndex
-                    ? "border-neon"
-                    : "border-white/20 hover:border-neon/50"
+                    ? "border-neon shadow-glow ring-2 ring-neon/30"
+                    : "border-white/20 hover:border-neon/50 hover:scale-105"
                 }`}
               >
                 <Image
                   src={img}
-                  alt={`${product.name} ${idx + 1}`}
+                  alt={`${product.name} view ${idx + 1}`}
                   fill
-                  sizes="64px"
-                  className="object-contain"
+                  sizes="80px"
+                  className="object-contain p-1"
                 />
+                {idx === activeIndex && (
+                  <div className="absolute inset-0 bg-neon/10" />
+                )}
               </button>
             ))}
           </div>
+        )}
+
+        {/* Image counter */}
+        {product.images.length > 1 && (
+          <p className="text-xs text-center text-white/50">
+            {activeIndex + 1} / {product.images.length}
+          </p>
         )}
       </div>
 
