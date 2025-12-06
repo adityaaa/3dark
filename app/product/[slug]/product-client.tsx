@@ -9,7 +9,8 @@ import { useState } from "react";
 
 export default function ProductClient({ product }: { product: StoreProduct }) {
   const { addItem } = useCart();
-  const [size, setSize] = useState(product.sizes[0] || "Free");
+  const isFreeSize = product.sizes.length === 1 && (product.sizes[0] === "Free Size" || product.sizes[0] === "One Size");
+  const [size, setSize] = useState(isFreeSize ? product.sizes[0] : (product.sizes[0] || "Free"));
   const [activeIndex, setActiveIndex] = useState(0);
 
   const activeImage = product.images[activeIndex] || product.image;
@@ -90,7 +91,8 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
 
         <p className="text-sm text-white/80">{product.description}</p>
 
-        {product.sizes.length > 0 && (
+        {/* Show size selector only if NOT free size */}
+        {!isFreeSize && product.sizes.length > 0 && (
           <div className="mt-3">
             <p className="text-xs text-white/60 mb-1">Select Size</p>
             <div className="flex flex-wrap gap-2">
@@ -109,6 +111,15 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Show Free Size badge if applicable */}
+        {isFreeSize && (
+          <div className="mt-3">
+            <span className="inline-block rounded-full bg-neon/20 border border-neon/40 px-3 py-1 text-xs font-medium text-neon">
+              Free Size / One Size
+            </span>
           </div>
         )}
 

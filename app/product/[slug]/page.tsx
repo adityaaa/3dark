@@ -14,9 +14,13 @@ export default async function ProductPage({
 
   if (!productDb) return notFound();
 
-  // Get brand pricing if available
-  const brandPricing = await prisma.brandPricing.findUnique({
-    where: { brand: productDb.brand },
+  // Get brand pricing if available for this product's brand+category+ageGroup
+  const brandPricing = await prisma.brandPricing.findFirst({
+    where: {
+      brand: productDb.brand,
+      category: productDb.category,
+      ageGroup: productDb.ageGroup,
+    },
   });
 
   let product = mapProduct(productDb);
