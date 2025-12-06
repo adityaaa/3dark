@@ -28,7 +28,7 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
             {product.name}
           </h3>
           <span className="text-[10px] md:text-xs uppercase text-white/60">
-            Glow {product.glowLevel}/5
+            {product.brand}
           </span>
         </div>
 

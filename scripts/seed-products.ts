@@ -70,7 +70,7 @@ async function main() {
       mrp,
       tags: tags.join(","),
       sizes: category.toLowerCase().includes("freesize") ? "Free Size" : "S,M,L,XL,XXL",
-      glowLevel: 5,
+      sizePricing: null,
       image: filename,
       gallery: null,
     };

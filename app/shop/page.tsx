@@ -42,7 +42,7 @@ export default async function ShopPage() {
                 {p.name}
               </span>
               <span className="text-[11px] uppercase tracking-wide text-white/40">
-                {p.brand} • Glow {p.glowLevel}/5
+                {p.brand}
               </span>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-sm font-semibold">₹{p.price}</span>
