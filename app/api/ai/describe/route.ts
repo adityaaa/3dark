@@ -21,7 +21,6 @@ export async function POST(req: Request) {
 Name: ${product.name}
 Brand: ${product.brand}
 Current description: ${product.description}
-Glow level: ${product.glowLevel}/5
 Audience: Indian buyers who love night rides, gaming, and parties.
 Tone: punchy, modern, 2–3 sentences.`;
 

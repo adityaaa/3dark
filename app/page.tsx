@@ -122,7 +122,7 @@ export default async function HomePage() {
                   <div className="mt-2 flex items-center justify-between text-xs">
                     <span className="font-semibold">₹{p.price}</span>
                     <span className="text-[11px] text-white/50">
-                      Glow {p.glowLevel}/5
+                      {p.brand}
                     </span>
                   </div>
                 </div>
