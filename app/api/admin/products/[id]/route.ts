@@ -29,6 +29,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
         name: body.name,
         slug: body.slug,
         brand: body.brand,
+        category: body.category ?? "tshirt",
+        ageGroup: body.ageGroup ?? "adult",
         description: body.description,
         price: body.price,
         mrp: body.mrp,
