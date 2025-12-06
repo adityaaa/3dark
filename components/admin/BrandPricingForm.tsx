@@ -19,6 +19,7 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
   const [category, setCategory] = useState<ProductCategory>("tshirt");
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("adult");
   const [sizes, setSizes] = useState(getDefaultSizes("adult"));
+  const [isFreeSize, setIsFreeSize] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -30,10 +31,12 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
     bp => bp.brand === selectedBrand && bp.category === category && bp.ageGroup === ageGroup
   );
 
-  // Auto-populate sizes when ageGroup changes
+  // Auto-populate sizes when ageGroup changes (unless Free Size is selected)
   useEffect(() => {
-    setSizes(getDefaultSizes(ageGroup));
-  }, [ageGroup]);
+    if (!isFreeSize) {
+      setSizes(getDefaultSizes(ageGroup));
+    }
+  }, [ageGroup, isFreeSize]);
 
   // Load pricing when brand/category/ageGroup changes
   useEffect(() => {
@@ -165,33 +168,66 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
         </div>
       </div>
 
-      {/* Sizes Input */}
+      {/* Free Size Option */}
       <div className="rounded-2xl border border-white/10 bg-black/70 p-6">
-        <label className="text-sm font-medium text-white/90">
-          Available Sizes
-        </label>
-        <p className="text-xs text-white/50 mt-1">
-          Comma-separated list of sizes for this brand
-        </p>
-        <input
-          type="text"
-          value={sizes}
-          onChange={(e) => {
-            setSizes(e.target.value);
-            // Auto-create pricing entries for new sizes
-            const newSizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-            const newPricing = { ...sizePricing };
-            newSizeList.forEach(size => {
-              if (!newPricing[size]) {
-                newPricing[size] = { price: 0, mrp: 0 };
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="brandFreeSize"
+            checked={isFreeSize}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setIsFreeSize(checked);
+              if (checked) {
+                setSizes("Free Size");
+                // Set single pricing for free size
+                setSizePricing({ "Free Size": { price: 0, mrp: 0 } });
+              } else {
+                setSizes(getDefaultSizes(ageGroup));
+                setSizePricing({});
               }
-            });
-            setSizePricing(newPricing);
-          }}
-          placeholder="S, M, L, XL, XXL, XXXL (add any sizes you need)"
-          className="mt-2 w-full rounded-lg border border-white/15 bg-black/40 px-4 py-3 text-sm text-white focus:border-neon focus:outline-none"
-        />
+            }}
+            className="h-4 w-4 cursor-pointer accent-neon"
+          />
+          <label htmlFor="brandFreeSize" className="cursor-pointer text-sm text-white/90">
+            <span className="font-medium">Free Size / One Size</span>
+            <span className="ml-2 text-xs text-white/60">
+              (For products like hats that don't need multiple sizes)
+            </span>
+          </label>
+        </div>
       </div>
+
+      {/* Sizes Input - Only show if NOT free size */}
+      {!isFreeSize && (
+        <div className="rounded-2xl border border-white/10 bg-black/70 p-6">
+          <label htmlFor="brandSizes" className="text-sm font-medium text-white/90">
+            Available Sizes
+          </label>
+          <p className="text-xs text-white/50 mt-1">
+            Comma-separated list of sizes for this brand
+          </p>
+          <input
+            id="brandSizes"
+            type="text"
+            value={sizes}
+            onChange={(e) => {
+              setSizes(e.target.value);
+              // Auto-create pricing entries for new sizes
+              const newSizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+              const newPricing = { ...sizePricing };
+              for (const size of newSizeList) {
+                if (!newPricing[size]) {
+                  newPricing[size] = { price: 0, mrp: 0 };
+                }
+              }
+              setSizePricing(newPricing);
+            }}
+            placeholder="S, M, L, XL, XXL, XXXL (add any sizes you need)"
+            className="mt-2 w-full rounded-lg border border-white/15 bg-black/40 px-4 py-3 text-sm text-white focus:border-neon focus:outline-none"
+          />
+        </div>
+      )}
 
       {/* Size-Specific Pricing */}
       {sizeList.length > 0 && (
