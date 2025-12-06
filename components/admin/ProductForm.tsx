@@ -87,15 +87,25 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       });
 
       if (!res.ok) {
-        throw new Error("Upload failed");
+        const errorData = await res.json();
+        console.error("Upload failed:", errorData);
+        throw new Error(errorData.error || "Upload failed");
       }
 
-      const data: { urls: string[] } = await res.json();
-      // urls should be like "/products/filename.jpg"
-      setImages((prev) => [...prev, ...data.urls]);
-    } catch (err) {
-      console.error(err);
-      setError("Image upload failed. Please try again.");
+      const data: { urls: string[]; errors?: string[] } = await res.json();
+      
+      // Add uploaded images
+      if (data.urls && data.urls.length > 0) {
+        setImages((prev) => [...prev, ...data.urls]);
+      }
+
+      // Show partial errors if any
+      if (data.errors && data.errors.length > 0) {
+        setError(`Some uploads failed: ${data.errors.join(", ")}`);
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setError(err.message || "Image upload failed. Please try again.");
     } finally {
       // reset input so same file can be selected again if needed
       e.target.value = "";
