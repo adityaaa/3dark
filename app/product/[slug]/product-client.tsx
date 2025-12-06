@@ -14,6 +14,12 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
 
   const activeImage = product.images[activeIndex] || product.image;
 
+  // Get size-specific pricing or fall back to base pricing
+  const selectedPricing = product.sizePricing?.[size] || {
+    price: product.price,
+    mrp: product.mrp
+  };
+
   function handleAddToCart() {
     addItem(product, size);
   }
@@ -78,7 +84,7 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
             {product.name}
           </h1>
           <p className="text-xs text-white/60 uppercase tracking-wide mt-1">
-            {product.brand} • Glow {product.glowLevel}/5
+            {product.brand}
           </p>
         </div>
 
@@ -107,12 +113,23 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
         )}
 
         <div className="flex items-center gap-4 mt-4">
+          <div className="text-lg font-semibold">
+            ₹{selectedPricing.price}
+            {selectedPricing.mrp > selectedPricing.price && (
+              <span className="ml-2 text-sm text-white/50 line-through">
+                ₹{selectedPricing.mrp}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-4">
           <button
             type="button"
             onClick={handleAddToCart}
             className="rounded-full bg-neon px-5 py-2 text-sm font-semibold text-black shadow-glow hover:brightness-95"
           >
-            Add to cart – ₹{product.price}
+            Add to cart – ₹{selectedPricing.price}
           </button>
         </div>
 
