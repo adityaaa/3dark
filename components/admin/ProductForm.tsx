@@ -328,39 +328,47 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             <p className="text-xs font-medium text-white/80 mb-3">
               Size-specific pricing{" "}
               <span className="text-[10px] text-white/40 font-normal">
-                (optional - leave empty to use base price for all)
+                (Set different prices per size - leave empty to use base price)
               </span>
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               {sizes.split(',').map(s => s.trim()).filter(Boolean).map((size) => (
-                <div key={size} className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 p-2">
-                  <span className="flex-shrink-0 text-xs font-medium text-neon w-8">{size}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder={`₹${price || 0}`}
-                    value={sizePricing[size]?.price || ''}
-                    onChange={(e) => {
-                      const newPricing = { ...sizePricing };
-                      if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
-                      newPricing[size].price = Number(e.target.value || 0);
-                      setSizePricing(newPricing);
-                    }}
-                    className="w-24 rounded border border-white/10 bg-black/60 px-2 py-1 text-xs text-white"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder={`₹${mrp || 0}`}
-                    value={sizePricing[size]?.mrp || ''}
-                    onChange={(e) => {
-                      const newPricing = { ...sizePricing };
-                      if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
-                      newPricing[size].mrp = Number(e.target.value || 0);
-                      setSizePricing(newPricing);
-                    }}
-                    className="w-24 rounded border border-white/10 bg-black/60 px-2 py-1 text-xs text-white/70"
-                  />
+                <div key={size} className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/40 p-3">
+                  <span className="flex-shrink-0 text-sm font-semibold text-neon w-10">{size}</span>
+                  <div className="flex-1 flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-white/50 mb-1">Selling Price</label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder={`₹${price || 0}`}
+                        value={sizePricing[size]?.price || ''}
+                        onChange={(e) => {
+                          const newPricing = { ...sizePricing };
+                          if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
+                          newPricing[size].price = Number(e.target.value || 0);
+                          setSizePricing(newPricing);
+                        }}
+                        className="w-full rounded border border-white/20 bg-black/60 px-3 py-2 text-sm text-white focus:border-neon focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-white/50 mb-1">MRP</label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder={`₹${mrp || 0}`}
+                        value={sizePricing[size]?.mrp || ''}
+                        onChange={(e) => {
+                          const newPricing = { ...sizePricing };
+                          if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
+                          newPricing[size].mrp = Number(e.target.value || 0);
+                          setSizePricing(newPricing);
+                        }}
+                        className="w-full rounded border border-white/20 bg-black/60 px-3 py-2 text-sm text-white/70 focus:border-neon focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
