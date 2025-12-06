@@ -17,11 +17,27 @@ export default async function EditProductPage({ params }: Props) {
 
   if (!product) return notFound();
 
+  // Fetch brand pricing to show/apply to this product
+  const brandPricing = await prisma.brandPricing.findUnique({
+    where: { brand: product.brand },
+  });
+
+  // Use brand pricing if available, otherwise use product's own pricing
+  const sizePricingToUse = brandPricing?.sizePricing || product.sizePricing || "";
+
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-wide">
-        Edit product
-      </h1>
+      <div className="space-y-2">
+        <h1 className="text-xl font-semibold tracking-wide">
+          Edit product
+        </h1>
+        {brandPricing && (
+          <p className="text-xs text-green-400">
+            ℹ️ This product uses brand-level pricing for "{product.brand}". Pricing is managed centrally at{" "}
+            <a href="/admin/brands" className="underline hover:text-neon">Brand Pricing</a>.
+          </p>
+        )}
+      </div>
 
       <ProductForm
         mode="edit"
@@ -37,6 +53,7 @@ export default async function EditProductPage({ params }: Props) {
           sizes: product.sizes,
           image: product.image,
           gallery: product.gallery ?? "",
+          sizePricing: sizePricingToUse,
         }}
       />
     </div>
