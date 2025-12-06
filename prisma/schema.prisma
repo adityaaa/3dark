@@ -12,6 +12,8 @@ model Product {
   slug        String      @unique
   name        String
   brand       String
+  category    String      @default("tshirt") // "tshirt", "pants", "hat"
+  ageGroup    String      @default("adult")  // "adult", "unisex", "men", "women", "kids"
   description String
   price       Int         // base price (fallback if no size-specific pricing)
   mrp         Int         // base MRP (fallback)
@@ -25,12 +27,23 @@ model Product {
   orderItems  OrderItem[]
 }
 
+model Brand {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model BrandPricing {
   id          Int      @id @default(autoincrement())
-  brand       String   @unique
+  brand       String
+  category    String   // "tshirt", "pants", "hat" - category-specific pricing
+  ageGroup    String   // "adult", "kids" - age-specific pricing
   sizePricing String   // JSON: {"S": {"price": 499, "mrp": 599}, "M": {...}}
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([brand, category, ageGroup]) // One pricing per brand+category+ageGroup combo
 }
 
 model Order {
