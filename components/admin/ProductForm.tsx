@@ -27,6 +27,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   const [mrp, setMrp] = useState(product?.mrp?.toString() ?? "");
   const [tags, setTags] = useState(product?.tags ?? "");
   const [sizes, setSizes] = useState(product?.sizes ?? getDefaultSizes("adult"));
+  const [isFreeSize, setIsFreeSize] = useState(product?.sizes === "Free Size" || product?.sizes === "One Size");
   
   // Fetch available brands
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
@@ -50,13 +51,13 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     fetchBrands();
   }, []);
 
-  // Auto-populate sizes when ageGroup changes
+  // Auto-populate sizes when ageGroup changes (unless Free Size is selected)
   useEffect(() => {
-    // Only auto-populate if sizes haven't been manually set
-    if (!product?.sizes) {
+    // Only auto-populate if sizes haven't been manually set and not free size
+    if (!product?.sizes && !isFreeSize) {
       setSizes(getDefaultSizes(ageGroup));
     }
-  }, [ageGroup, product?.sizes]);
+  }, [ageGroup, product?.sizes, isFreeSize]);
   
   // Size-specific pricing: { "S": { price: 499, mrp: 599 }, "M": {...} }
   const [sizePricing, setSizePricing] = useState<Record<string, { price: number; mrp: number }>>(() => {
@@ -431,34 +432,64 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           </div>
         </div>
 
-        <div>
-          <label className="text-xs text-white/70">
-            Sizes{" "}
-            <span className="text-[10px] text-white/40">
-              (comma separated: S, M, L, XL, XXL, XXXL…)
+        {/* Free Size Option */}
+        <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4">
+          <input
+            type="checkbox"
+            id="freeSize"
+            checked={isFreeSize}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setIsFreeSize(checked);
+              if (checked) {
+                setSizes("Free Size");
+                setSizePricing({}); // Clear size-specific pricing
+              } else {
+                setSizes(getDefaultSizes(ageGroup));
+              }
+            }}
+            className="h-4 w-4 cursor-pointer accent-neon"
+          />
+          <label htmlFor="freeSize" className="cursor-pointer text-sm text-white/90">
+            <span className="font-medium">Free Size / One Size</span>
+            <span className="ml-2 text-xs text-white/60">
+              (For products like hats that don't need multiple sizes)
             </span>
           </label>
-          <input
-            className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-            value={sizes}
-            onChange={(e) => {
-              setSizes(e.target.value);
-              // Auto-create pricing for new sizes
-              const sizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-              const newPricing = { ...sizePricing };
-              sizeList.forEach(size => {
-                if (!newPricing[size]) {
-                  newPricing[size] = { price: Number(price || 0), mrp: Number(mrp || 0) };
-                }
-              });
-              setSizePricing(newPricing);
-            }}
-            placeholder="S, M, L, XL, XXL, XXXL"
-          />
         </div>
 
-        {/* Size-specific pricing */}
-        {sizes && sizes.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+        {/* Sizes Input - Only show if NOT free size */}
+        {!isFreeSize && (
+          <div>
+            <label htmlFor="sizes" className="text-xs text-white/70">
+              Sizes{" "}
+              <span className="text-[10px] text-white/40">
+                (comma separated: S, M, L, XL, XXL, XXXL…)
+              </span>
+            </label>
+            <input
+              id="sizes"
+              className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+              value={sizes}
+              onChange={(e) => {
+                setSizes(e.target.value);
+                // Auto-create pricing for new sizes
+                const sizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                const newPricing = { ...sizePricing };
+                for (const size of sizeList) {
+                  if (!newPricing[size]) {
+                    newPricing[size] = { price: Number(price || 0), mrp: Number(mrp || 0) };
+                  }
+                }
+                setSizePricing(newPricing);
+              }}
+              placeholder="S, M, L, XL, XXL, XXXL"
+            />
+          </div>
+        )}
+
+        {/* Size-specific pricing - Only show if NOT free size */}
+        {!isFreeSize && sizes && sizes.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-medium text-white/80 mb-3">
               Size-specific pricing{" "}
