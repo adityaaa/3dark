@@ -250,17 +250,24 @@ export default function ProductsTable({ products }: ProductsTableProps) {
 
                     // If size-specific pricing exists, show it
                     if (sizePricing && Object.keys(sizePricing).length > 0) {
-                      return (
-                        <div className="space-y-1">
-                          {Object.entries(sizePricing).map(([size, pricing]) => (
-                            <div key={size} className="flex items-center gap-2">
-                              <span className="font-semibold text-neon/80">{size}:</span>
-                              <span className="text-white">₹{pricing.price}</span>
-                              <span className="text-[10px] text-white/40 line-through">₹{pricing.mrp}</span>
-                            </div>
-                          ))}
-                        </div>
+                      // Filter out sizes with zero prices (not applicable for this age group)
+                      const validSizes = Object.entries(sizePricing).filter(
+                        ([_, pricing]) => pricing.price > 0 && pricing.mrp > 0
                       );
+
+                      if (validSizes.length > 0) {
+                        return (
+                          <div className="space-y-1">
+                            {validSizes.map(([size, pricing]) => (
+                              <div key={size} className="flex items-center gap-2">
+                                <span className="font-semibold text-neon/80">{size}:</span>
+                                <span className="text-white">₹{pricing.price}</span>
+                                <span className="text-[10px] text-white/40 line-through">₹{pricing.mrp}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
                     }
 
                     // Fallback to base pricing
