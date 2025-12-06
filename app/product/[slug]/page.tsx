@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { mapProduct } from "@/lib/utils";
+import { mapProduct, applyBrandPricing } from "@/lib/utils";
 import ProductClient from "./product-client";
 
 export default async function ProductPage({
@@ -14,7 +14,15 @@ export default async function ProductPage({
 
   if (!productDb) return notFound();
 
-  const product = mapProduct(productDb);
+  // Get brand pricing if available
+  const brandPricing = await prisma.brandPricing.findUnique({
+    where: { brand: productDb.brand },
+  });
+
+  let product = mapProduct(productDb);
+  if (brandPricing) {
+    product = applyBrandPricing(product, brandPricing.sizePricing);
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">

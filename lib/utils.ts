@@ -6,6 +6,7 @@ import type { StoreProduct } from "./types";
 /**
  * Convert database Product to StoreProduct format
  * Handles image normalization and parsing of comma-separated fields
+ * Note: For brand-level pricing, call mapProductWithBrandPricing instead
  */
 export function mapProduct(p: Product): StoreProduct {
   const tags = p.tags
@@ -85,4 +86,25 @@ export function formatPrice(amount: number): string {
 export function getDiscountPercent(price: number, mrp: number): number {
   if (mrp <= 0) return 0;
   return Math.round(((mrp - price) / mrp) * 100);
+}
+
+/**
+ * Apply brand-level pricing to a product
+ * If brand has pricing configured, use that instead of product-specific pricing
+ */
+export function applyBrandPricing(
+  product: StoreProduct,
+  brandPricingJson: string | null
+): StoreProduct {
+  if (!brandPricingJson) return product;
+
+  try {
+    const brandPricing = JSON.parse(brandPricingJson);
+    return {
+      ...product,
+      sizePricing: brandPricing,
+    };
+  } catch {
+    return product;
+  }
 }

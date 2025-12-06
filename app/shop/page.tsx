@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { mapProduct } from "@/lib/utils";
+import { mapProduct, applyBrandPricing } from "@/lib/utils";
 import Image from "next/image";
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,17 @@ export default async function ShopPage() {
   const productsDb = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
   });
-  const products = productsDb.map(mapProduct);
+  
+  // Get all brand pricings
+  const brandPricings = await prisma.brandPricing.findMany();
+  const brandPricingMap = new Map(brandPricings.map(bp => [bp.brand, bp.sizePricing]));
+  
+  // Map products and apply brand pricing
+  const products = productsDb.map(p => {
+    const product = mapProduct(p);
+    const brandPricing = brandPricingMap.get(p.brand);
+    return applyBrandPricing(product, brandPricing || null);
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
