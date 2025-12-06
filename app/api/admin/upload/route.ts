@@ -6,14 +6,8 @@ import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-// Increase body size limit for image uploads (50MB)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
+// Increase max duration for upload (10 seconds)
+export const maxDuration = 10;
 
 export async function POST(req: Request) {
   try {
