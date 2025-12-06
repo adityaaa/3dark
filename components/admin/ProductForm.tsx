@@ -75,33 +75,57 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     try {
       setError(null);
 
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
+      // Upload files one by one to avoid payload size limit (4.5MB on Vercel)
+      const uploadedUrls: string[] = [];
+      const failedUploads: string[] = [];
 
-      // assumes you already have /api/admin/upload implemented
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        try {
+          console.log(`Uploading ${i + 1}/${files.length}: ${file.name}`);
+          
+          const formData = new FormData();
+          formData.append("files", file);
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Upload failed:", errorData);
-        throw new Error(errorData.error || "Upload failed");
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            console.error(`Upload failed for ${file.name}:`, errorData);
+            failedUploads.push(file.name);
+            continue;
+          }
+
+          const data: { urls: string[]; errors?: string[] } = await res.json();
+          
+          if (data.urls && data.urls.length > 0) {
+            uploadedUrls.push(...data.urls);
+          }
+
+          if (data.errors && data.errors.length > 0) {
+            failedUploads.push(...data.errors);
+          }
+        } catch (error_: any) {
+          console.error(`Error uploading ${file.name}:`, error_);
+          failedUploads.push(file.name);
+        }
       }
 
-      const data: { urls: string[]; errors?: string[] } = await res.json();
-      
-      // Add uploaded images
-      if (data.urls && data.urls.length > 0) {
-        setImages((prev) => [...prev, ...data.urls]);
+      // Add all successfully uploaded images
+      if (uploadedUrls.length > 0) {
+        setImages((prev) => [...prev, ...uploadedUrls]);
       }
 
-      // Show partial errors if any
-      if (data.errors && data.errors.length > 0) {
-        setError(`Some uploads failed: ${data.errors.join(", ")}`);
+      // Show results
+      if (failedUploads.length > 0) {
+        setError(`${uploadedUrls.length} uploaded successfully. ${failedUploads.length} failed: ${failedUploads.join(", ")}`);
+      } else if (uploadedUrls.length > 0) {
+        // Success message will auto-clear
+        setTimeout(() => setError(null), 3000);
       }
     } catch (err: any) {
       console.error("Upload error:", err);
