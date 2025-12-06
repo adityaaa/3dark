@@ -12,8 +12,8 @@ model Product {
   slug        String      @unique
   name        String
   brand       String
-  category    String      @default("tshirt") // "tshirt", "pants", "hat"
-  ageGroup    String      @default("adult")  // "adult", "unisex", "men", "women", "kids"
+  category    String      @default("tshirt") // "tshirt", "shorts", "pants", "beanie-hat"
+  ageGroup    String      @default("adult")  // "adult", "kids"
   description String
   price       Int         // base price (fallback if no size-specific pricing)
   mrp         Int         // base MRP (fallback)
