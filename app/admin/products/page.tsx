@@ -10,6 +10,20 @@ export default async function AdminProductsPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Fetch all brand pricings to apply to products
+  const brandPricings = await prisma.brandPricing.findMany();
+  const brandPricingMap = new Map(brandPricings.map(bp => [bp.brand, bp.sizePricing]));
+
+  // Apply brand pricing to products (override product-specific pricing)
+  const productsWithBrandPricing = products.map(p => {
+    const brandPricing = brandPricingMap.get(p.brand);
+    if (brandPricing) {
+      // Brand pricing takes precedence
+      return { ...p, sizePricing: brandPricing };
+    }
+    return p;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -29,7 +43,7 @@ export default async function AdminProductsPage() {
           No products yet. Click "Add product" to create your first one.
         </p>
       ) : (
-        <ProductsTable products={products} />
+        <ProductsTable products={productsWithBrandPricing} />
       )}
     </div>
   );
