@@ -14,12 +14,17 @@ export default async function HomePage() {
 
   // Get all brand pricings
   const brandPricings = await prisma.brandPricing.findMany();
-  const brandPricingMap = new Map(brandPricings.map(bp => [bp.brand, bp.sizePricing]));
+  
+  // Create a map keyed by brand+category+ageGroup for quick lookup
+  const brandPricingMap = new Map(
+    brandPricings.map(bp => [`${bp.brand}:${bp.category}:${bp.ageGroup}`, bp.sizePricing])
+  );
 
   // Map products and apply brand pricing
   const top = productsDb.map(p => {
     const product = mapProduct(p);
-    const brandPricing = brandPricingMap.get(p.brand);
+    const pricingKey = `${p.brand}:${p.category}:${p.ageGroup}`;
+    const brandPricing = brandPricingMap.get(pricingKey);
     return applyBrandPricing(product, brandPricing || null);
   });
 

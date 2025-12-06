@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import type { AdminProduct } from "@/lib/types";
+import type { AdminProduct, ProductCategory, AgeGroup } from "@/lib/types";
+import { getDefaultSizes, PRODUCT_CATEGORIES, AGE_GROUPS } from "@/lib/utils";
 
 type ProductFormProps = {
   product?: AdminProduct | null;
@@ -17,11 +18,46 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   const [slug, setSlug] = useState(product?.slug ?? "");
   const [name, setName] = useState(product?.name ?? "");
   const [brand, setBrand] = useState(product?.brand ?? "");
+  const [newBrandName, setNewBrandName] = useState("");
+  const [showNewBrandInput, setShowNewBrandInput] = useState(false);
+  const [category, setCategory] = useState<ProductCategory>(product?.category ?? "tshirt");
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(product?.ageGroup ?? "adult");
   const [description, setDescription] = useState(product?.description ?? "");
   const [price, setPrice] = useState(product?.price?.toString() ?? "");
   const [mrp, setMrp] = useState(product?.mrp?.toString() ?? "");
   const [tags, setTags] = useState(product?.tags ?? "");
-  const [sizes, setSizes] = useState(product?.sizes ?? "");
+  const [sizes, setSizes] = useState(product?.sizes ?? getDefaultSizes("adult"));
+  const [isFreeSize, setIsFreeSize] = useState(product?.sizes === "Free Size" || product?.sizes === "One Size");
+  
+  // Fetch available brands
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [loadingBrands, setLoadingBrands] = useState(true);
+  
+  // Load brands on mount
+  useEffect(() => {
+    async function fetchBrands() {
+      try {
+        const res = await fetch("/api/admin/brands");
+        if (res.ok) {
+          const brands = await res.json();
+          setAvailableBrands(brands.map((b: { name: string }) => b.name));
+        }
+      } catch (err) {
+        console.error("Failed to fetch brands:", err);
+      } finally {
+        setLoadingBrands(false);
+      }
+    }
+    fetchBrands();
+  }, []);
+
+  // Auto-populate sizes when ageGroup changes (unless Free Size is selected)
+  useEffect(() => {
+    // Only auto-populate if sizes haven't been manually set and not free size
+    if (!product?.sizes && !isFreeSize) {
+      setSizes(getDefaultSizes(ageGroup));
+    }
+  }, [ageGroup, product?.sizes, isFreeSize]);
   
   // Size-specific pricing: { "S": { price: 499, mrp: 599 }, "M": {...} }
   const [sizePricing, setSizePricing] = useState<Record<string, { price: number; mrp: number }>>(() => {
@@ -157,6 +193,20 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     setError(null);
 
     try {
+      // Handle new brand creation if needed
+      let finalBrand = brand;
+      if (showNewBrandInput && newBrandName.trim()) {
+        const brandRes = await fetch("/api/admin/brands", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newBrandName.trim() }),
+        });
+        if (brandRes.ok) {
+          const createdBrand = await brandRes.json();
+          finalBrand = createdBrand.name;
+        }
+      }
+
       // derive hero + gallery from images array
       const heroImage = images[0] ?? "";
       const gallery =
@@ -170,7 +220,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       const payload = {
         slug,
         name,
-        brand,
+        brand: finalBrand,
+        category,
+        ageGroup,
         description,
         price: Number(price || 0),
         mrp: Number(mrp || 0),
@@ -230,8 +282,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         {/* slug + brand row */}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="text-xs text-white/70">Slug (URL id)</label>
+            <label htmlFor="slug" className="text-xs text-white/70">Slug (URL id)</label>
             <input
+              id="slug"
               className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
@@ -240,19 +293,99 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             />
           </div>
           <div>
-            <label className="text-xs text-white/70">Brand</label>
-            <input
+            <label htmlFor="brand" className="text-xs text-white/70">Brand</label>
+            {!showNewBrandInput ? (
+              <div className="flex gap-2">
+                <select
+                  id="brand"
+                  value={brand}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "___new___") {
+                      setShowNewBrandInput(true);
+                      setBrand("");
+                    } else {
+                      setBrand(value);
+                    }
+                  }}
+                  className="mt-1 flex-1 rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+                  required
+                  disabled={loadingBrands}
+                >
+                  <option value="">Select brand...</option>
+                  {availableBrands.map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                  <option value="___new___">+ Add new brand</option>
+                </select>
+              </div>
+            ) : (
+              <div className="flex gap-2 mt-1">
+                <input
+                  type="text"
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  placeholder="Enter new brand name"
+                  className="flex-1 rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewBrandInput(false);
+                    setNewBrandName("");
+                    setBrand(availableBrands[0] || "");
+                  }}
+                  className="px-3 py-2 rounded-lg border border-white/15 bg-black/40 text-xs text-white/70 hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* category + ageGroup row */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label htmlFor="category" className="text-xs text-white/70">Category</label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as ProductCategory)}
               className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              placeholder="3Dark / Rock Chang / Caballo"
-            />
+              required
+            >
+              <option value="tshirt">T-Shirt</option>
+              <option value="shorts">Shorts</option>
+              <option value="pants">Pants</option>
+              <option value="beanie-hat">Beanie Hat</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="ageGroup" className="text-xs text-white/70">Age Group</label>
+            <select
+              id="ageGroup"
+              value={ageGroup}
+              onChange={(e) => {
+                const newAgeGroup = e.target.value as AgeGroup;
+                setAgeGroup(newAgeGroup);
+                // Auto-populate sizes based on age group
+                setSizes(getDefaultSizes(newAgeGroup));
+              }}
+              className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+              required
+            >
+              <option value="adult">Adult</option>
+              <option value="kids">Kids</option>
+            </select>
           </div>
         </div>
 
         <div>
-          <label className="text-xs text-white/70">Name</label>
+          <label htmlFor="name" className="text-xs text-white/70">Name</label>
           <input
+            id="name"
             className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -262,8 +395,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         </div>
 
         <div>
-          <label className="text-xs text-white/70">Description</label>
+          <label htmlFor="description" className="text-xs text-white/70">Description</label>
           <textarea
+            id="description"
             className="mt-1 h-28 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -274,8 +408,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         {/* price row */}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="text-xs text-white/70">Selling price (₹)</label>
+            <label htmlFor="price" className="text-xs text-white/70">Selling price (₹)</label>
             <input
+              id="price"
               type="number"
               min={0}
               className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
@@ -285,8 +420,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             />
           </div>
           <div>
-            <label className="text-xs text-white/70">MRP (₹)</label>
+            <label htmlFor="mrp" className="text-xs text-white/70">MRP (₹)</label>
             <input
+              id="mrp"
               type="number"
               min={0}
               className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
@@ -296,34 +432,64 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           </div>
         </div>
 
-        <div>
-          <label className="text-xs text-white/70">
-            Sizes{" "}
-            <span className="text-[10px] text-white/40">
-              (comma separated: S, M, L, XL, XXL, XXXL…)
+        {/* Free Size Option */}
+        <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4">
+          <input
+            type="checkbox"
+            id="freeSize"
+            checked={isFreeSize}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setIsFreeSize(checked);
+              if (checked) {
+                setSizes("Free Size");
+                setSizePricing({}); // Clear size-specific pricing
+              } else {
+                setSizes(getDefaultSizes(ageGroup));
+              }
+            }}
+            className="h-4 w-4 cursor-pointer accent-neon"
+          />
+          <label htmlFor="freeSize" className="cursor-pointer text-sm text-white/90">
+            <span className="font-medium">Free Size / One Size</span>
+            <span className="ml-2 text-xs text-white/60">
+              (For products like hats that don't need multiple sizes)
             </span>
           </label>
-          <input
-            className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-            value={sizes}
-            onChange={(e) => {
-              setSizes(e.target.value);
-              // Auto-create pricing for new sizes
-              const sizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-              const newPricing = { ...sizePricing };
-              sizeList.forEach(size => {
-                if (!newPricing[size]) {
-                  newPricing[size] = { price: Number(price || 0), mrp: Number(mrp || 0) };
-                }
-              });
-              setSizePricing(newPricing);
-            }}
-            placeholder="S, M, L, XL, XXL, XXXL"
-          />
         </div>
 
-        {/* Size-specific pricing */}
-        {sizes && sizes.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+        {/* Sizes Input - Only show if NOT free size */}
+        {!isFreeSize && (
+          <div>
+            <label htmlFor="sizes" className="text-xs text-white/70">
+              Sizes{" "}
+              <span className="text-[10px] text-white/40">
+                (comma separated: S, M, L, XL, XXL, XXXL…)
+              </span>
+            </label>
+            <input
+              id="sizes"
+              className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+              value={sizes}
+              onChange={(e) => {
+                setSizes(e.target.value);
+                // Auto-create pricing for new sizes
+                const sizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                const newPricing = { ...sizePricing };
+                for (const size of sizeList) {
+                  if (!newPricing[size]) {
+                    newPricing[size] = { price: Number(price || 0), mrp: Number(mrp || 0) };
+                  }
+                }
+                setSizePricing(newPricing);
+              }}
+              placeholder="S, M, L, XL, XXL, XXXL"
+            />
+          </div>
+        )}
+
+        {/* Size-specific pricing - Only show if NOT free size */}
+        {!isFreeSize && sizes && sizes.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-medium text-white/80 mb-3">
               Size-specific pricing{" "}

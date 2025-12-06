@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import ProductForm from "@/components/admin/ProductForm";
 import { notFound } from "next/navigation";
+import type { ProductCategory, AgeGroup } from "@/lib/types";
 
 type Props = {
   params: { id: string };
@@ -17,9 +18,13 @@ export default async function EditProductPage({ params }: Props) {
 
   if (!product) return notFound();
 
-  // Fetch brand pricing to show/apply to this product
-  const brandPricing = await prisma.brandPricing.findUnique({
-    where: { brand: product.brand },
+  // Fetch brand pricing to show/apply to this product (based on brand+category+ageGroup)
+  const brandPricing = await prisma.brandPricing.findFirst({
+    where: {
+      brand: product.brand,
+      category: product.category,
+      ageGroup: product.ageGroup,
+    },
   });
 
   // Use brand pricing if available, otherwise use product's own pricing
@@ -33,7 +38,7 @@ export default async function EditProductPage({ params }: Props) {
         </h1>
         {brandPricing && (
           <p className="text-xs text-green-400">
-            ℹ️ This product uses brand-level pricing for "{product.brand}". Pricing is managed centrally at{" "}
+            ℹ️ This product uses brand-level pricing for "{product.brand}" ({product.category}, {product.ageGroup}). Pricing is managed centrally at{" "}
             <a href="/admin/brands" className="underline hover:text-neon">Brand Pricing</a>.
           </p>
         )}
@@ -46,6 +51,8 @@ export default async function EditProductPage({ params }: Props) {
           name: product.name,
           slug: product.slug,
           brand: product.brand,
+          category: product.category as ProductCategory,
+          ageGroup: product.ageGroup as AgeGroup,
           description: product.description,
           price: product.price,
           mrp: product.mrp,
