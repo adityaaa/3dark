@@ -197,10 +197,8 @@ export default function ProductsTable({ products }: ProductsTableProps) {
               </th>
               <th className="px-4 py-3 font-medium text-white/60">Image</th>
               <th className="px-4 py-3 font-medium text-white/60">Name</th>
-              <th className="px-4 py-3 font-medium text-white/60">Slug</th>
               <th className="px-4 py-3 font-medium text-white/60">Brand</th>
-              <th className="px-4 py-3 font-medium text-white/60">Price</th>
-              <th className="px-4 py-3 font-medium text-white/60">Sizes</th>
+              <th className="px-4 py-3 font-medium text-white/60">Sizes & Pricing</th>
               <th className="px-4 py-3 font-medium text-white/60">Updated</th>
               <th className="px-4 py-3 font-medium text-white/60"></th>
             </tr>
@@ -233,17 +231,46 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-xs font-medium">{p.name || "—"}</td>
-                <td className="px-4 py-3 text-[11px] text-white/60">
-                  {p.slug || "—"}
-                </td>
                 <td className="px-4 py-3 text-xs text-white/70">{p.brand || "—"}</td>
                 <td className="px-4 py-3 text-xs">
-                  ₹{p.price}{" "}
-                  <span className="text-[10px] text-white/50">
-                    (MRP ₹{p.mrp})
-                  </span>
+                  {(() => {
+                    // Parse size-specific pricing if available
+                    let sizePricing: Record<string, { price: number; mrp: number }> | null = null;
+                    if (p.sizePricing) {
+                      try {
+                        sizePricing = JSON.parse(p.sizePricing);
+                      } catch {
+                        // ignore
+                      }
+                    }
+
+                    // If size-specific pricing exists, show it
+                    if (sizePricing && Object.keys(sizePricing).length > 0) {
+                      return (
+                        <div className="space-y-1">
+                          {Object.entries(sizePricing).map(([size, pricing]) => (
+                            <div key={size} className="flex items-center gap-2">
+                              <span className="font-semibold text-neon/80">{size}:</span>
+                              <span className="text-white">₹{pricing.price}</span>
+                              <span className="text-[10px] text-white/40 line-through">₹{pricing.mrp}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+
+                    // Fallback to base pricing
+                    return (
+                      <div className="text-white/60">
+                        ₹{p.price}{" "}
+                        <span className="text-[10px] text-white/40">
+                          (MRP ₹{p.mrp})
+                        </span>
+                        {p.sizes && <div className="text-[11px] mt-1">{p.sizes}</div>}
+                      </div>
+                    );
+                  })()}
                 </td>
-                <td className="px-4 py-3 text-xs">{p.sizes || "-"}</td>
                 <td className="px-4 py-3 text-[11px] text-white/50">
                   {new Date(p.updatedAt).toLocaleDateString()}
                 </td>
