@@ -1,7 +1,50 @@
 // lib/utils.ts - Utility functions
 
 import type { Product } from "@prisma/client";
-import type { StoreProduct } from "./types";
+import type { StoreProduct, ProductCategory, AgeGroup } from "./types";
+
+/**
+ * Product category configurations
+ */
+export const PRODUCT_CATEGORIES = {
+  tshirt: { value: "tshirt", label: "T-Shirt" },
+  shorts: { value: "shorts", label: "Shorts" },
+  pants: { value: "pants", label: "Pants" },
+  "beanie-hat": { value: "beanie-hat", label: "Beanie Hat" },
+} as const;
+
+/**
+ * Age group configurations
+ */
+export const AGE_GROUPS = {
+  adult: { value: "adult", label: "Adult" },
+  kids: { value: "kids", label: "Kids" },
+} as const;
+
+/**
+ * Get default sizes for a given age group
+ */
+export function getDefaultSizes(ageGroup: AgeGroup): string {
+  if (ageGroup === "kids") {
+    return "2-4 Years, 4-6 Years, 6-8 Years, 8-10 Years, 10-12 Years, 12-14 Years";
+  }
+  // Adult default
+  return "S, M, L, XL, XXL, XXXL";
+}
+
+/**
+ * Get category label
+ */
+export function getCategoryLabel(category: ProductCategory): string {
+  return PRODUCT_CATEGORIES[category]?.label || category;
+}
+
+/**
+ * Get age group label
+ */
+export function getAgeGroupLabel(ageGroup: AgeGroup): string {
+  return AGE_GROUPS[ageGroup]?.label || ageGroup;
+}
 
 /**
  * Convert database Product to StoreProduct format
@@ -62,6 +105,8 @@ export function mapProduct(p: Product): StoreProduct {
     slug: p.slug,
     name: p.name,
     brand: p.brand,
+    category: (p.category as ProductCategory) || "tshirt",
+    ageGroup: (p.ageGroup as AgeGroup) || "adult",
     description: p.description,
     price: p.price,
     mrp: p.mrp,

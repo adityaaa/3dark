@@ -1,6 +1,16 @@
 // lib/types.ts - All TypeScript types in one place
 
 /**
+ * Product categories
+ */
+export type ProductCategory = "tshirt" | "shorts" | "pants" | "beanie-hat";
+
+/**
+ * Age groups for sizing
+ */
+export type AgeGroup = "adult" | "kids";
+
+/**
  * StoreProduct - Frontend representation of a product
  * Used in shop, product pages, cart, etc.
  */
@@ -9,6 +19,8 @@ export type StoreProduct = {
   slug: string;
   name: string;
   brand: string;
+  category: ProductCategory;
+  ageGroup: AgeGroup;
   description: string;
   price: number;
   mrp: number;
@@ -27,6 +39,8 @@ export type AdminProduct = {
   slug: string;
   name: string;
   brand: string;
+  category: ProductCategory;
+  ageGroup: AgeGroup;
   description: string;
   price: number;
   mrp: number;
