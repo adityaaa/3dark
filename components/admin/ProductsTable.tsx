@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@prisma/client";
@@ -17,7 +18,6 @@ export default function ProductsTable({ products }: ProductsTableProps) {
   
   // Bulk edit state
   const [bulkBrand, setBulkBrand] = useState("");
-  const [bulkGlowLevel, setBulkGlowLevel] = useState("");
   const [bulkDiscount, setBulkDiscount] = useState("");
 
   const allSelected = selectedIds.size === products.length && products.length > 0;
@@ -79,7 +79,6 @@ export default function ProductsTable({ products }: ProductsTableProps) {
     try {
       const updates: Record<string, any> = {};
       if (bulkBrand) updates.brand = bulkBrand;
-      if (bulkGlowLevel) updates.glowLevel = Number(bulkGlowLevel);
       if (bulkDiscount) {
         // Apply discount percentage to selected products
         updates.applyDiscount = Number(bulkDiscount);
@@ -106,7 +105,6 @@ export default function ProductsTable({ products }: ProductsTableProps) {
       setSelectedIds(new Set());
       setShowBulkEdit(false);
       setBulkBrand("");
-      setBulkGlowLevel("");
       setBulkDiscount("");
       router.refresh();
     } catch (err) {
@@ -145,7 +143,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
 
           {/* Bulk Edit Form */}
           {showBulkEdit && (
-            <div className="mt-4 grid gap-4 border-t border-white/10 pt-4 md:grid-cols-3">
+            <div className="mt-4 grid gap-4 border-t border-white/10 pt-4 md:grid-cols-2">
               <div>
                 <label htmlFor="bulk-brand" className="text-xs text-white/70">Brand (optional)</label>
                 <input
@@ -154,19 +152,6 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                   value={bulkBrand}
                   onChange={(e) => setBulkBrand(e.target.value)}
                   placeholder="e.g. Rock Chang"
-                  className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
-                />
-              </div>
-              <div>
-                <label htmlFor="bulk-glow" className="text-xs text-white/70">Glow Level (1-5)</label>
-                <input
-                  id="bulk-glow"
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={bulkGlowLevel}
-                  onChange={(e) => setBulkGlowLevel(e.target.value)}
-                  placeholder="e.g. 4"
                   className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
                 />
               </div>
@@ -183,7 +168,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                   className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-xs text-white"
                 />
               </div>
-              <div className="md:col-span-3">
+              <div className="md:col-span-2">
                 <button
                   onClick={handleBulkEdit}
                   disabled={isDeleting}
@@ -210,12 +195,12 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                   className="h-4 w-4 cursor-pointer accent-neon"
                 />
               </th>
+              <th className="px-4 py-3 font-medium text-white/60">Image</th>
               <th className="px-4 py-3 font-medium text-white/60">Name</th>
               <th className="px-4 py-3 font-medium text-white/60">Slug</th>
               <th className="px-4 py-3 font-medium text-white/60">Brand</th>
               <th className="px-4 py-3 font-medium text-white/60">Price</th>
               <th className="px-4 py-3 font-medium text-white/60">Sizes</th>
-              <th className="px-4 py-3 font-medium text-white/60">Glow</th>
               <th className="px-4 py-3 font-medium text-white/60">Updated</th>
               <th className="px-4 py-3 font-medium text-white/60"></th>
             </tr>
@@ -236,6 +221,17 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                     className="h-4 w-4 cursor-pointer accent-neon"
                   />
                 </td>
+                <td className="px-4 py-3">
+                  <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-white/10 bg-black/60">
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-xs font-medium">{p.name || "—"}</td>
                 <td className="px-4 py-3 text-[11px] text-white/60">
                   {p.slug || "—"}
@@ -248,7 +244,6 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs">{p.sizes || "-"}</td>
-                <td className="px-4 py-3 text-xs">{p.glowLevel}/5</td>
                 <td className="px-4 py-3 text-[11px] text-white/50">
                   {new Date(p.updatedAt).toLocaleDateString()}
                 </td>

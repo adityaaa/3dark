@@ -46,6 +46,16 @@ export function mapProduct(p: Product): StoreProduct {
     ? [baseImage, ...normalizedGallery]
     : [baseImage];
 
+  // Parse size-specific pricing if available
+  let sizePricing: Record<string, { price: number; mrp: number }> | undefined;
+  if (p.sizePricing) {
+    try {
+      sizePricing = JSON.parse(p.sizePricing);
+    } catch {
+      sizePricing = undefined;
+    }
+  }
+
   return {
     id: p.id,
     slug: p.slug,
@@ -54,11 +64,11 @@ export function mapProduct(p: Product): StoreProduct {
     description: p.description,
     price: p.price,
     mrp: p.mrp,
-    glowLevel: p.glowLevel,
     image: images[0],
     images,
     tags,
     sizes,
+    sizePricing,
   };
 }
 

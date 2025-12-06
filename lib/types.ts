@@ -12,11 +12,11 @@ export type StoreProduct = {
   description: string;
   price: number;
   mrp: number;
-  glowLevel: number;
   image: string;      // primary image
   images: string[];   // all images (primary + gallery)
   tags: string[];
   sizes: string[];
+  sizePricing?: Record<string, { price: number; mrp: number }>;  // size-specific pricing
 };
 
 /**
@@ -30,9 +30,9 @@ export type AdminProduct = {
   description: string;
   price: number;
   mrp: number;
-  glowLevel?: number;
   tags: string;   // comma or hashtag separated
   sizes: string;  // "S, M, L, XL"
+  sizePricing?: string | null;  // JSON: {"S": {"price": 499, "mrp": 599}, ...}
   image?: string | null;
   gallery?: string | null;
 };

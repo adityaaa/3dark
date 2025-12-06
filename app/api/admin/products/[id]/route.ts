@@ -34,7 +34,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
         mrp: body.mrp,
         tags: body.tags,
         sizes: body.sizes,
-        glowLevel: body.glowLevel,
+        sizePricing: body.sizePricing ?? null,
         image: body.image,
         gallery: body.gallery ?? null,
       },

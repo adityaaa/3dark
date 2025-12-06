@@ -13,11 +13,11 @@ model Product {
   name        String
   brand       String
   description String
-  price       Int
-  mrp         Int
+  price       Int         // base price (fallback if no size-specific pricing)
+  mrp         Int         // base MRP (fallback)
   tags        String      // comma-separated tags
   sizes       String      // comma-separated sizes
-  glowLevel   Int
+  sizePricing String?     // JSON: {"S": {"price": 499, "mrp": 599}, "M": {...}}
   image       String      // primary image path
   gallery     String?     // comma-separated extra image paths
   createdAt   DateTime    @default(now())

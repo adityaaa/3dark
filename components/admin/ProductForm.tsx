@@ -22,6 +22,18 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   const [mrp, setMrp] = useState(product?.mrp?.toString() ?? "");
   const [tags, setTags] = useState(product?.tags ?? "");
   const [sizes, setSizes] = useState(product?.sizes ?? "");
+  
+  // Size-specific pricing: { "S": { price: 499, mrp: 599 }, "M": {...} }
+  const [sizePricing, setSizePricing] = useState<Record<string, { price: number; mrp: number }>>(() => {
+    if (product?.sizePricing) {
+      try {
+        return JSON.parse(product.sizePricing);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
 
   // --- right side (images / gallery) ---
   // Build initial image array from existing product
@@ -150,6 +162,11 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       const gallery =
         images.length > 1 ? images.slice(1).join(",") : null;
 
+      // Serialize sizePricing if it has data
+      const sizePricingJson = Object.keys(sizePricing).length > 0 
+        ? JSON.stringify(sizePricing) 
+        : null;
+
       const payload = {
         slug,
         name,
@@ -159,10 +176,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         mrp: Number(mrp || 0),
         tags,
         sizes,
+        sizePricing: sizePricingJson,
         image: heroImage,
         gallery,
-        // we silently fix glowLevel to a default (e.g. 100)
-        glowLevel: product?.glowLevel ?? 100,
       };
 
       const url =
@@ -290,10 +306,66 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           <input
             className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
             value={sizes}
-            onChange={(e) => setSizes(e.target.value)}
+            onChange={(e) => {
+              setSizes(e.target.value);
+              // Auto-create pricing for new sizes
+              const sizeList = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+              const newPricing = { ...sizePricing };
+              sizeList.forEach(size => {
+                if (!newPricing[size]) {
+                  newPricing[size] = { price: Number(price || 0), mrp: Number(mrp || 0) };
+                }
+              });
+              setSizePricing(newPricing);
+            }}
             placeholder="S, M, L, XL, XXL"
           />
         </div>
+
+        {/* Size-specific pricing */}
+        {sizes && sizes.split(',').map(s => s.trim()).filter(Boolean).length > 0 && (
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+            <p className="text-xs font-medium text-white/80 mb-3">
+              Size-specific pricing{" "}
+              <span className="text-[10px] text-white/40 font-normal">
+                (optional - leave empty to use base price for all)
+              </span>
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {sizes.split(',').map(s => s.trim()).filter(Boolean).map((size) => (
+                <div key={size} className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 p-2">
+                  <span className="flex-shrink-0 text-xs font-medium text-neon w-8">{size}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={`₹${price || 0}`}
+                    value={sizePricing[size]?.price || ''}
+                    onChange={(e) => {
+                      const newPricing = { ...sizePricing };
+                      if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
+                      newPricing[size].price = Number(e.target.value || 0);
+                      setSizePricing(newPricing);
+                    }}
+                    className="w-24 rounded border border-white/10 bg-black/60 px-2 py-1 text-xs text-white"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={`₹${mrp || 0}`}
+                    value={sizePricing[size]?.mrp || ''}
+                    onChange={(e) => {
+                      const newPricing = { ...sizePricing };
+                      if (!newPricing[size]) newPricing[size] = { price: 0, mrp: 0 };
+                      newPricing[size].mrp = Number(e.target.value || 0);
+                      setSizePricing(newPricing);
+                    }}
+                    className="w-24 rounded border border-white/10 bg-black/60 px-2 py-1 text-xs text-white/70"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="text-xs text-white/70">
