@@ -14,7 +14,7 @@ type SizePricing = Record<string, { price: number; mrp: number }>;
 export default function BrandPricingForm({ brands, existingPricing }: BrandPricingFormProps) {
   const router = useRouter();
   const [selectedBrand, setSelectedBrand] = useState(brands[0] || "");
-  const [sizes, setSizes] = useState("S, M, L, XL, XXL, XXXL");
+  const [sizes, setSizes] = useState("S, M, L, XL, XXL");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -151,7 +151,7 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
             });
             setSizePricing(newPricing);
           }}
-          placeholder="S, M, L, XL, XXL, XXXL"
+          placeholder="S, M, L, XL, XXL, XXXL (add any sizes you need)"
           className="mt-2 w-full rounded-lg border border-white/15 bg-black/40 px-4 py-3 text-sm text-white focus:border-neon focus:outline-none"
         />
       </div>
