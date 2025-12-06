@@ -1,28 +1,55 @@
 // app/api/admin/brands/pricing/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import type { ProductCategory, AgeGroup } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { brand, sizePricing } = body;
+    const { brand, category, ageGroup, sizePricing } = body;
 
-    if (!brand || !sizePricing) {
+    if (!brand || !category || !ageGroup || !sizePricing) {
       return NextResponse.json(
-        { error: "Brand and sizePricing are required" },
+        { error: "Brand, category, ageGroup, and sizePricing are required" },
         { status: 400 }
       );
     }
 
-    // Upsert brand pricing
+    // Validate category and ageGroup
+    const validCategories: ProductCategory[] = ["tshirt", "shorts", "pants", "beanie-hat"];
+    const validAgeGroups: AgeGroup[] = ["adult", "kids"];
+
+    if (!validCategories.includes(category as ProductCategory)) {
+      return NextResponse.json(
+        { error: "Invalid category" },
+        { status: 400 }
+      );
+    }
+
+    if (!validAgeGroups.includes(ageGroup as AgeGroup)) {
+      return NextResponse.json(
+        { error: "Invalid age group" },
+        { status: 400 }
+      );
+    }
+
+    // Upsert brand pricing for specific category+ageGroup
     const brandPricing = await prisma.brandPricing.upsert({
-      where: { brand },
+      where: {
+        brand_category_ageGroup: {
+          brand,
+          category,
+          ageGroup,
+        },
+      },
       update: {
         sizePricing,
         updatedAt: new Date(),
       },
       create: {
         brand,
+        category,
+        ageGroup,
         sizePricing,
       },
     });

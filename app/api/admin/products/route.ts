@@ -23,6 +23,8 @@ export async function POST(req: Request) {
         slug: body.slug ?? "",
         name: body.name ?? "",
         brand: body.brand ?? "",
+        category: body.category ?? "tshirt",
+        ageGroup: body.ageGroup ?? "adult",
         description: body.description ?? "",
         price: Number(body.price ?? 0),
         mrp: Number(body.mrp ?? 0),

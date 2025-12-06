@@ -198,6 +198,8 @@ export default function ProductsTable({ products }: ProductsTableProps) {
               <th className="px-4 py-3 font-medium text-white/60">Image</th>
               <th className="px-4 py-3 font-medium text-white/60">Name</th>
               <th className="px-4 py-3 font-medium text-white/60">Brand</th>
+              <th className="px-4 py-3 font-medium text-white/60">Category</th>
+              <th className="px-4 py-3 font-medium text-white/60">Age</th>
               <th className="px-4 py-3 font-medium text-white/60">Sizes & Pricing</th>
               <th className="px-4 py-3 font-medium text-white/60">Updated</th>
               <th className="px-4 py-3 font-medium text-white/60"></th>
@@ -232,6 +234,8 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                 </td>
                 <td className="px-4 py-3 text-xs font-medium">{p.name || "—"}</td>
                 <td className="px-4 py-3 text-xs text-white/70">{p.brand || "—"}</td>
+                <td className="px-4 py-3 text-xs text-white/70 capitalize">{p.category || "—"}</td>
+                <td className="px-4 py-3 text-xs text-white/70 capitalize">{p.ageGroup || "—"}</td>
                 <td className="px-4 py-3 text-xs">
                   {(() => {
                     // Parse size-specific pricing if available

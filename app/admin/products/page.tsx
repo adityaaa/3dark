@@ -12,11 +12,16 @@ export default async function AdminProductsPage() {
 
   // Fetch all brand pricings to apply to products
   const brandPricings = await prisma.brandPricing.findMany();
-  const brandPricingMap = new Map(brandPricings.map(bp => [bp.brand, bp.sizePricing]));
+  
+  // Create map with brand+category+ageGroup as key
+  const brandPricingMap = new Map(
+    brandPricings.map(bp => [`${bp.brand}-${bp.category}-${bp.ageGroup}`, bp.sizePricing])
+  );
 
   // Apply brand pricing to products (override product-specific pricing)
   const productsWithBrandPricing = products.map(p => {
-    const brandPricing = brandPricingMap.get(p.brand);
+    const key = `${p.brand}-${p.category}-${p.ageGroup}`;
+    const brandPricing = brandPricingMap.get(key);
     if (brandPricing) {
       // Brand pricing takes precedence
       return { ...p, sizePricing: brandPricing };
