@@ -38,7 +38,7 @@ export default async function EditProductPage({ params }: Props) {
         </h1>
         {brandPricing && (
           <p className="text-xs text-green-400">
-            ℹ️ This product uses brand-level pricing for "{product.brand}" ({product.category}, {product.ageGroup}). Pricing is managed centrally at{" "}
+            ℹ️ This product uses brand-level pricing for &quot;{product.brand}&quot; ({product.category}, {product.ageGroup}). Pricing is managed centrally at{" "}
             <a href="/admin/brands" className="underline hover:text-neon">Brand Pricing</a>.
           </p>
         )}

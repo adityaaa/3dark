@@ -131,7 +131,7 @@ export default function SettingsForm({ admin }: { admin: Admin }) {
       <div className="border-t border-gray-800 pt-6">
         <h2 className="text-xl font-semibold mb-4">Change Password</h2>
         <p className="text-sm text-gray-400 mb-4">
-          Leave blank if you don't want to change your password.
+          Leave blank if you don&apos;t want to change your password.
         </p>
 
         <div className="space-y-4">

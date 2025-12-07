@@ -30,10 +30,6 @@ export default function ProductReviews({ productId }: { productId: number }) {
   const [stats, setStats] = useState<ReviewStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReviews();
-  }, [productId]);
-
   const fetchReviews = async () => {
     try {
       const res = await fetch(`/api/reviews?productId=${productId}`);
@@ -48,6 +44,11 @@ export default function ProductReviews({ productId }: { productId: number }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId]);
 
   const renderStars = (rating: number, size: "sm" | "lg" = "sm") => {
     const stars = [];

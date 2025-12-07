@@ -194,7 +194,7 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
           <label htmlFor="brandFreeSize" className="cursor-pointer text-sm text-white/90">
             <span className="font-medium">Free Size / One Size</span>
             <span className="ml-2 text-xs text-white/60">
-              (For products like hats that don't need multiple sizes)
+              (For products like hats that don&apos;t need multiple sizes)
             </span>
           </label>
         </div>

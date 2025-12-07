@@ -124,7 +124,7 @@ export default function AccountClient({ customer }: { customer: Customer }) {
         <div>
           {customer.orders.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-white/70 mb-4">You haven't placed any orders yet.</p>
+              <p className="text-white/70 mb-4">You haven&apos;t placed any orders yet.</p>
               <Link
                 href="/shop"
                 className="inline-block px-6 py-3 bg-[#C3FF3C] text-black font-medium rounded-lg hover:bg-[#b3ef2c] transition"

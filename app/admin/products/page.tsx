@@ -45,7 +45,7 @@ export default async function AdminProductsPage() {
 
       {products.length === 0 ? (
         <p className="text-sm text-white/60">
-          No products yet. Click "Add product" to create your first one.
+          No products yet. Click &quot;Add product&quot; to create your first one.
         </p>
       ) : (
         <ProductsTable products={productsWithBrandPricing} />

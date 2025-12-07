@@ -25,7 +25,7 @@ export default function AboutPage() {
             <p>
               3Dark was born from a passion for wildlife and bold fashion. We believe that clothing 
               should be more than just fabric—it should tell a story, express personality, and 
-              celebrate the raw beauty of nature's most magnificent creatures.
+              celebrate the raw beauty of nature&apos;s most magnificent creatures.
             </p>
             <p>
               Our journey began with a simple idea: to create premium streetwear that features 
@@ -40,13 +40,13 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold text-neon">Our Mission</h2>
           <div className="mt-4 space-y-4 text-white/75">
             <p>
-              At 3Dark, we're committed to providing high-quality, comfortable apparel for both 
+              At 3Dark, we&apos;re committed to providing high-quality, comfortable apparel for both 
               adults and kids. We source the best materials and work with talented designers to 
               create unique pieces that stand out from the crowd.
             </p>
             <p>
-              We believe fashion should be accessible, affordable, and authentic. That's why we 
-              offer competitive pricing without compromising on quality, and we're constantly 
+              We believe fashion should be accessible, affordable, and authentic. That&apos;s why we 
+              offer competitive pricing without compromising on quality, and we&apos;re constantly 
               expanding our collection to bring you fresh designs.
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function AboutPage() {
           <div className="mt-4 space-y-3 text-white/75">
             <p>
               Have questions about our products? Want to know more about sizing or shipping? 
-              We're here to help!
+              We&apos;re here to help!
             </p>
             <div className="space-y-2 text-sm">
               <p>

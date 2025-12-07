@@ -12,7 +12,7 @@ export default function SupportPage() {
           <span className="text-neon">Support</span> & FAQ
         </h1>
         <p className="mt-4 text-lg text-white/70">
-          We're here to help! Find answers to common questions below.
+          We&apos;re here to help! Find answers to common questions below.
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export default function SupportPage() {
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h3 className="font-semibold text-white">Can I track my order?</h3>
               <p className="mt-2 text-sm text-white/70">
-                Yes! Once your order is shipped, you'll receive a tracking number via email. 
+                Yes! Once your order is shipped, you&apos;ll receive a tracking number via email. 
                 You can use this to track your package.
               </p>
             </div>
@@ -100,9 +100,9 @@ export default function SupportPage() {
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h3 className="font-semibold text-white">Can I exchange for a different size?</h3>
               <p className="mt-2 text-sm text-white/70">
-                Due to hygiene reasons and limited stock, we generally don't accept size exchanges. 
+                Due to hygiene reasons and limited stock, we generally don&apos;t accept size exchanges. 
                 Please check our size guide carefully before ordering. If you receive a defective 
-                product, we'll be happy to help.
+                product, we&apos;ll be happy to help.
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
@@ -123,7 +123,7 @@ export default function SupportPage() {
               <h3 className="font-semibold text-white">Adult Sizes</h3>
               <p className="mt-2 text-sm text-white/70">
                 We offer S, M, L, XL, XXL, and XXXL sizes for adults. Each product page has 
-                detailed measurements. If you're between sizes, we recommend sizing up.
+                detailed measurements. If you&apos;re between sizes, we recommend sizing up.
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
@@ -137,7 +137,7 @@ export default function SupportPage() {
               <h3 className="font-semibold text-white">How do I find the right size?</h3>
               <p className="mt-2 text-sm text-white/70">
                 Measure your current best-fitting t-shirt/shorts and compare with our size chart. 
-                If you need help, email us your measurements and we'll recommend the perfect size!
+                If you need help, email us your measurements and we&apos;ll recommend the perfect size!
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function SupportPage() {
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <h3 className="font-semibold text-white">Are online payments secure?</h3>
               <p className="mt-2 text-sm text-white/70">
-                Absolutely! We use Razorpay, India's most trusted payment gateway. All transactions 
+                Absolutely! We use Razorpay, India&apos;s most trusted payment gateway. All transactions 
                 are encrypted and 100% secure. We never store your card details.
               </p>
             </div>
@@ -227,7 +227,7 @@ export default function SupportPage() {
       <div className="mt-12 text-center rounded-2xl border border-white/10 bg-black/40 p-8">
         <h2 className="text-2xl font-semibold text-white">Still Need Help?</h2>
         <p className="mt-3 text-white/70">
-          Can't find the answer you're looking for? Our team is here to help!
+          Can&apos;t find the answer you&apos;re looking for? Our team is here to help!
         </p>
         <a
           href="mailto:support@3dark.in"
@@ -236,7 +236,7 @@ export default function SupportPage() {
           Email Us: support@3dark.in
         </a>
         <p className="mt-4 text-sm text-white/60">
-          We'll get back to you within 24 hours!
+          We&apos;ll get back to you within 24 hours!
         </p>
       </div>
     </div>
