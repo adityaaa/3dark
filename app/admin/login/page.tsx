@@ -58,7 +58,7 @@ export default function AdminLogin() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="admin@3dark.com"
+              placeholder="Enter your email"
             />
           </div>
 
@@ -91,10 +91,6 @@ export default function AdminLogin() {
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-400">
-          <p>Default credentials: admin@3dark.com / admin123</p>
-        </div>
       </div>
     </div>
   );
