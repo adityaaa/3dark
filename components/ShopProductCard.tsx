@@ -57,7 +57,7 @@ export default function ShopProductCard({
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 800); // Change image every 800ms
+    }, 1500); // Change image every 1500ms (1.5 seconds)
 
     return () => clearInterval(interval);
   }, [isHovering, images.length]);
