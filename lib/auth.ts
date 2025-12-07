@@ -7,7 +7,8 @@ import { db } from "./db";
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      id: "admin-login",
+      name: "Admin",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -38,6 +39,44 @@ export const authOptions: NextAuthOptions = {
           id: admin.id.toString(),
           email: admin.email,
           name: admin.name,
+          role: "admin",
+        };
+      },
+    }),
+    CredentialsProvider({
+      id: "customer-login",
+      name: "Customer",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+
+        const customer = await db.customer.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!customer) {
+          throw new Error("Invalid email or password");
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          customer.password
+        );
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid email or password");
+        }
+
+        return {
+          id: customer.id.toString(),
+          email: customer.email,
+          name: customer.name,
+          role: "customer",
         };
       },
     }),
@@ -46,12 +85,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
       }
       return session;
     },

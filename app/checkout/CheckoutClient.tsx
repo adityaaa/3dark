@@ -1,9 +1,11 @@
 // app/checkout/CheckoutClient.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/components/CartContext";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import type { CheckoutFormData } from "@/lib/types";
 
 declare global {
@@ -15,6 +17,7 @@ declare global {
 export default function CheckoutClient() {
   const { items, total: cartTotal, clear } = useCart();
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
@@ -30,6 +33,32 @@ export default function CheckoutClient() {
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   const [status, setStatus] = useState<"idle" | "processing" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [customerData, setCustomerData] = useState<any>(null);
+
+  // Fetch customer data if logged in
+  useEffect(() => {
+    if (session?.user?.email && (session.user as any).role === "customer") {
+      fetch("/api/customer/profile")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.customer) {
+            setCustomerData(data.customer);
+            // Pre-fill form with customer data
+            setFormData({
+              name: data.customer.name || "",
+              email: data.customer.email || "",
+              phone: data.customer.phone || "",
+              address: data.customer.address || "",
+              city: data.customer.city || "",
+              state: data.customer.state || "",
+              pincode: data.customer.pincode || "",
+              notes: "",
+            });
+          }
+        })
+        .catch((err) => console.error("Failed to fetch customer data:", err));
+    }
+  }, [session]);
 
   // Free shipping for all orders
   const shipping = 0;

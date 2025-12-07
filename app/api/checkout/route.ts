@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { generateOrderNumber, calculateShipping } from "@/lib/payment";
 import { sendOrderConfirmationEmail } from "@/lib/email";
@@ -10,6 +12,21 @@ export async function POST(req: Request) {
     console.log("Full body:", JSON.stringify(body, null, 2));
     
     const { customer, items, paymentMethod } = body;
+    
+    // Check if user is logged in
+    const session = await getServerSession(authOptions);
+    let customerId = null;
+    
+    if (session?.user?.email && (session.user as any).role === "customer") {
+      const customerRecord = await prisma.customer.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+      customerId = customerRecord?.id || null;
+      console.log("✅ Logged in customer:", customerId);
+    } else {
+      console.log("ℹ️ Guest checkout");
+    }
     
     console.log("Parsed values:");
     console.log("- customer:", customer);
@@ -51,10 +68,11 @@ export async function POST(req: Request) {
     // Generate unique order number
     const orderNumber = generateOrderNumber();
 
-    // Create order in database
+    // Create order in database (link to customer if logged in)
     const order = await prisma.order.create({
       data: {
         orderNumber,
+        customerId, // Link to customer account if logged in
         customerName: customer.name,
         customerEmail: customer.email,
         customerPhone: customer.phone,

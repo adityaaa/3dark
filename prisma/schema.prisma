@@ -49,6 +49,7 @@ model BrandPricing {
 model Order {
   id                 Int         @id @default(autoincrement())
   orderNumber        String      @unique
+  customerId         Int?        // Link to customer account (optional for guest orders)
   customerName       String
   customerEmail      String
   customerPhone      String
@@ -68,6 +69,7 @@ model Order {
   notes              String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+  customer           Customer?   @relation(fields: [customerId], references: [id])
 }
 
 model OrderItem {
@@ -90,4 +92,20 @@ model Admin {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password        String   // hashed password
+  name            String
+  phone           String?
+  // Default shipping address (users can override at checkout)
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  orders          Order[]  // All orders linked to this customer
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
