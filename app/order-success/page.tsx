@@ -1,6 +1,9 @@
 // app/order-success/page.tsx
 import OrderSuccessClient from "./OrderSuccessClient";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Order Success - 3Dark",
   description: "Your order has been placed successfully",

@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import EditAddressClient from "./EditAddressClient";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Edit Address - 3Dark",
   description: "Update your shipping address",

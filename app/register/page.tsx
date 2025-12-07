@@ -1,11 +1,8 @@
 // app/register/page.tsx
-"use client";
+import RegisterClient from "./RegisterClient";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { Loader2 } from "lucide-react";
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export default function RegisterPage() {
   const router = useRouter();

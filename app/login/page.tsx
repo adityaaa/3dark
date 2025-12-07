@@ -1,17 +1,22 @@
 // app/login/page.tsx
-"use client";
+import LoginClient from "./LoginClient";
 
-import { signIn } from "next-auth/react";
-import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Loader2 } from "lucide-react";
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
+  "use client";
+
+  import { signIn } from "next-auth/react";
+  import { useState, FormEvent } from "react";
+  import { useRouter, useSearchParams } from "next/navigation";
+  import Link from "next/link";
+  import { Loader2 } from "lucide-react";
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/account";
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

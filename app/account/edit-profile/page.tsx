@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import EditProfileClient from "./EditProfileClient";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Edit Profile - 3Dark",
   description: "Update your profile information",

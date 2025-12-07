@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import AccountClient from "./AccountClient";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "My Account - 3Dark",
   description: "Manage your orders, profile, and addresses",
