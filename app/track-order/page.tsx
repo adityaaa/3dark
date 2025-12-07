@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function TrackOrderPage() {
+function TrackOrderForm() {
   const searchParams = useSearchParams();
   const [orderNumber, setOrderNumber] = useState(searchParams.get("orderNumber") || "");
   const [email, setEmail] = useState("");
@@ -180,5 +180,20 @@ export default function TrackOrderPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <div className="text-center">
+          <div className="text-3xl font-bold mb-2">Track Your Order</div>
+          <div className="text-white/70">Loading...</div>
+        </div>
+      </div>
+    }>
+      <TrackOrderForm />
+    </Suspense>
   );
 }
