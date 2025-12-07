@@ -25,6 +25,7 @@ model Product {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
+  reviews     Review[]    // Product reviews
 }
 
 model Brand {
@@ -49,7 +50,8 @@ model BrandPricing {
 model Order {
   id                 Int         @id @default(autoincrement())
   orderNumber        String      @unique
-  customerId         Int?        // Link to customer account (optional for guest orders)
+  customerId         Int?        // Null for guest orders
+  customer           Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerName       String
   customerEmail      String
   customerPhone      String
@@ -57,19 +59,19 @@ model Order {
   city               String
   state              String
   pincode            String
-  items              OrderItem[]
   subtotal           Int
-  shipping           Int         @default(0)
+  shipping           Int
   total              Int
-  paymentMethod      String      // "razorpay", "cod", etc.
+  paymentMethod      String      // "razorpay", "cod"
   paymentStatus      String      @default("pending") // "pending", "paid", "failed"
-  razorpayOrderId    String?     // Razorpay order ID
-  razorpayPaymentId  String?     // Razorpay payment ID
   orderStatus        String      @default("pending") // "pending", "processing", "shipped", "delivered", "cancelled"
   notes              String?
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
-  customer           Customer?   @relation(fields: [customerId], references: [id])
+  items              OrderItem[]
+  reviews            Review[]    // Reviews from this order
 }
 
 model OrderItem {
@@ -106,6 +108,28 @@ model Customer {
   state           String?
   pincode         String?
   orders          Order[]  // All orders linked to this customer
+  reviews         Review[] // Customer reviews
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId  Int?     // Null for fake/seed reviews
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderId     Int?     // Only set for verified purchases
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  rating      Int      // 1-5 stars
+  title       String?  // Optional review title
+  comment     String   // Review text
+  isVerified  Boolean  @default(false) // True if from actual purchase
+  isFake      Boolean  @default(false) // True for seed/fake reviews
+  customerName String  // Display name (for fake reviews or override)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([customerId])
 }
