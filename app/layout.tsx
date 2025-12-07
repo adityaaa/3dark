@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import Image from "next/image";
 import { CartProvider } from "@/components/CartContext";
 import NavbarClient from "@/components/NavbarClient";
+import { Providers } from "@/components/Providers";
 
 function Footer() {
   return (
@@ -97,15 +98,17 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en">
       <body className="min-h-screen bg-bg text-white">
-        <CartProvider>
-          <div className="flex min-h-screen flex-col">
-            <NavbarClient />
-            <main className="flex-1 bg-gradient-to-b from-bg-soft to-black">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </CartProvider>
+        <Providers>
+          <CartProvider>
+            <div className="flex min-h-screen flex-col">
+              <NavbarClient />
+              <main className="flex-1 bg-gradient-to-b from-bg-soft to-black">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </CartProvider>
+        </Providers>
       </body>
     </html>
   );
