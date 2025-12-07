@@ -8,7 +8,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { brand, category, ageGroup, sizePricing } = body;
 
+    console.log("Brand pricing request:", { brand, category, ageGroup, sizePricing: sizePricing?.substring(0, 100) });
+
     if (!brand || !category || !ageGroup || !sizePricing) {
+      console.error("Missing required fields:", { brand, category, ageGroup, hasSizePricing: !!sizePricing });
       return NextResponse.json(
         { error: "Brand, category, ageGroup, and sizePricing are required" },
         { status: 400 }
@@ -20,18 +23,33 @@ export async function POST(req: Request) {
     const validAgeGroups: AgeGroup[] = ["adult", "kids"];
 
     if (!validCategories.includes(category as ProductCategory)) {
+      console.error("Invalid category:", category);
       return NextResponse.json(
-        { error: "Invalid category" },
+        { error: `Invalid category: ${category}. Must be one of: ${validCategories.join(', ')}` },
         { status: 400 }
       );
     }
 
     if (!validAgeGroups.includes(ageGroup as AgeGroup)) {
+      console.error("Invalid age group:", ageGroup);
       return NextResponse.json(
-        { error: "Invalid age group" },
+        { error: `Invalid age group: ${ageGroup}. Must be one of: ${validAgeGroups.join(', ')}` },
         { status: 400 }
       );
     }
+
+    // Validate sizePricing is valid JSON
+    try {
+      JSON.parse(sizePricing);
+    } catch (jsonErr) {
+      console.error("Invalid sizePricing JSON:", jsonErr);
+      return NextResponse.json(
+        { error: "Invalid sizePricing format. Must be valid JSON." },
+        { status: 400 }
+      );
+    }
+
+    console.log("Attempting upsert for:", { brand, category, ageGroup });
 
     // Upsert brand pricing for specific category+ageGroup
     const brandPricing = await prisma.brandPricing.upsert({
@@ -54,11 +72,18 @@ export async function POST(req: Request) {
       },
     });
 
+    console.log("Brand pricing saved successfully:", brandPricing.id);
     return NextResponse.json(brandPricing);
   } catch (err: any) {
     console.error("Brand pricing save error:", err);
+    console.error("Error details:", {
+      message: err.message,
+      code: err.code,
+      meta: err.meta,
+      stack: err.stack?.split('\n').slice(0, 3),
+    });
     return NextResponse.json(
-      { error: "Failed to save brand pricing" },
+      { error: `Failed to save brand pricing: ${err.message || 'Unknown error'}` },
       { status: 500 }
     );
   }

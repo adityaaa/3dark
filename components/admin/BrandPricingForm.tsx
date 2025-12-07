@@ -94,15 +94,17 @@ export default function BrandPricingForm({ brands, existingPricing }: BrandPrici
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to save brand pricing");
+        throw new Error(data.error || "Failed to save brand pricing");
       }
 
       setSuccess(`✓ Pricing saved for ${selectedBrand} (${category}, ${ageGroup}). All matching products will use these prices.`);
       setTimeout(() => setSuccess(null), 5000);
       router.refresh();
     } catch (err: any) {
-      console.error(err);
+      console.error("Brand pricing error:", err);
       setError(err.message || "Failed to save pricing");
     } finally {
       setIsSaving(false);
