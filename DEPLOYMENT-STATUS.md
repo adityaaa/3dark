@@ -1,14 +1,19 @@
 # ✅ Deployment Status - PRODUCTION READY
 
-## 🎊 **REVIEWS ARE NOW LIVE!**
+## 🎊 **LATEST FEATURES DEPLOYED!**
 
-**Just Deployed:**
+**Just Added (December 7, 2025):**
+- ✅ **Star ratings on shop page** - Each product shows average rating & review count
+- ✅ **Image carousel on hover** - Auto-cycles through product images (800ms interval)
 - ✅ 275 fake reviews seeded across 53 products
 - ✅ ProductReviews component integrated on all product pages
 - ✅ Star ratings, verified badges, and social proof visible
 - ✅ Reviews displaying with realistic Indian customer names
 
-**View Live:** https://3dark.in/shop → Click any product to see reviews!
+**View Live:** 
+- Shop with ratings & carousel: https://3dark.in/shop
+- Hover over products to see image carousel
+- Click any product to see full reviews
 
 ---
 
@@ -22,6 +27,8 @@
 - ✅ Complete e-commerce functionality
 - ✅ Customer authentication & accounts
 - ✅ Order management & tracking
+- ✅ **⭐ Star ratings visible on shop page cards**
+- ✅ **🖼️ Auto-carousel hover effect for product images**
 - ✅ **Review system with 275 fake reviews seeded**
 - ✅ **ProductReviews component integrated on product pages**
 - ✅ Admin panel for product/order management
