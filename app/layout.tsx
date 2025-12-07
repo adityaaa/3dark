@@ -33,16 +33,63 @@ function Footer() {
 }
 
 export const metadata = {
-  title: "3Dark – Glow in the Dark T-Shirts",
-  description: "Hyper-realistic glow-in-the-dark T-shirts and streetwear.",
+  metadataBase: new URL('https://3dark.in'),
+  title: {
+    default: '3Dark – Wildlife-Inspired Streetwear | T-Shirts, Shorts & More',
+    template: '%s | 3Dark'
+  },
+  description: 'Shop premium wildlife-themed streetwear at 3Dark. Bold designs featuring tigers, leopards, eagles & more. Quality t-shirts, shorts, pants & beanies for adults and kids. Free shipping on orders above ₹999.',
+  keywords: ['wildlife t-shirts', 'animal print clothing', 'tiger t-shirt', 'leopard shorts', 'streetwear india', 'graphic tees', 'kids animal clothing', 'premium t-shirts', 'wildlife fashion', '3dark'],
+  authors: [{ name: '3Dark' }],
+  creator: '3Dark',
+  publisher: '3Dark',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: '/logos/logo.png',
     apple: '/logos/logo.png',
+    shortcut: '/logos/logo.png',
   },
   openGraph: {
-    title: "3Dark – Glow in the Dark T-Shirts",
-    description: "Hyper-realistic glow-in-the-dark T-shirts and streetwear.",
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://3dark.in',
+    siteName: '3Dark',
+    title: '3Dark – Wildlife-Inspired Streetwear',
+    description: 'Shop premium wildlife-themed clothing. Bold designs, quality fabrics, perfect fit. T-shirts, shorts, and more for adults and kids.',
+    images: [
+      {
+        url: '/logos/logo.png',
+        width: 1200,
+        height: 630,
+        alt: '3Dark Logo',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '3Dark – Wildlife-Inspired Streetwear',
+    description: 'Shop premium wildlife-themed clothing. Bold designs, quality fabrics, perfect fit.',
     images: ['/logos/logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
   },
 };
 
