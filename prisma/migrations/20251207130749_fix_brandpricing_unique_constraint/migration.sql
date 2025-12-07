@@ -3,33 +3,45 @@
 -- Step 1: Add missing columns to Product table if they don't exist
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_name = 'Product' AND column_name = 'category') THEN
+    -- Add category column if it doesn't exist
+    BEGIN
         ALTER TABLE "Product" ADD COLUMN "category" TEXT NOT NULL DEFAULT 'tshirt';
         RAISE NOTICE 'Added category column to Product';
-    END IF;
+    EXCEPTION
+        WHEN duplicate_column THEN
+            RAISE NOTICE 'Column Product.category already exists';
+    END;
     
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_name = 'Product' AND column_name = 'ageGroup') THEN
+    -- Add ageGroup column if it doesn't exist
+    BEGIN
         ALTER TABLE "Product" ADD COLUMN "ageGroup" TEXT NOT NULL DEFAULT 'adult';
         RAISE NOTICE 'Added ageGroup column to Product';
-    END IF;
+    EXCEPTION
+        WHEN duplicate_column THEN
+            RAISE NOTICE 'Column Product.ageGroup already exists';
+    END;
 END $$;
 
 -- Step 2: Add missing columns to BrandPricing table if they don't exist
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_name = 'BrandPricing' AND column_name = 'category') THEN
+    -- Add category column if it doesn't exist
+    BEGIN
         ALTER TABLE "BrandPricing" ADD COLUMN "category" TEXT NOT NULL DEFAULT 'tshirt';
         RAISE NOTICE 'Added category column to BrandPricing';
-    END IF;
+    EXCEPTION
+        WHEN duplicate_column THEN
+            RAISE NOTICE 'Column BrandPricing.category already exists';
+    END;
     
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_name = 'BrandPricing' AND column_name = 'ageGroup') THEN
+    -- Add ageGroup column if it doesn't exist
+    BEGIN
         ALTER TABLE "BrandPricing" ADD COLUMN "ageGroup" TEXT NOT NULL DEFAULT 'adult';
         RAISE NOTICE 'Added ageGroup column to BrandPricing';
-    END IF;
+    EXCEPTION
+        WHEN duplicate_column THEN
+            RAISE NOTICE 'Column BrandPricing.ageGroup already exists';
+    END;
 END $$;
 
 -- Step 3: Create Brand table if it doesn't exist
