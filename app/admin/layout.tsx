@@ -1,8 +1,13 @@
 // app/admin/layout.tsx
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import LogoutButton from "@/components/admin/LogoutButton";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="border-b border-white/10 bg-black/80 backdrop-blur sticky top-0 z-20">
@@ -12,7 +17,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               3Dark Admin
             </span>
           </div>
-          <nav className="flex gap-4 text-xs">
+          <nav className="flex items-center gap-4 text-xs">
             <Link href="/admin" className="hover:text-neon">
               Dashboard
             </Link>
@@ -31,6 +36,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link href="/" className="text-white/60 hover:text-white">
               View site
             </Link>
+            <span className="text-white/40">|</span>
+            {session?.user && (
+              <span className="text-white/60" title={session.user.email || ''}>
+                {session.user.name}
+              </span>
+            )}
+            <LogoutButton />
           </nav>
         </div>
       </header>
