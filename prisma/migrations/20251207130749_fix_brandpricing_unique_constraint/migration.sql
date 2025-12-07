@@ -1,7 +1,62 @@
--- Fix BrandPricing unique constraint
--- The table may have a constraint on 'brand' only, but we need it on (brand, category, ageGroup)
+-- Fix BrandPricing table structure and constraints
 
--- Drop any existing unique constraint on brand only
+-- Step 1: Add missing columns to Product table if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'Product' AND column_name = 'category') THEN
+        ALTER TABLE "Product" ADD COLUMN "category" TEXT NOT NULL DEFAULT 'tshirt';
+        RAISE NOTICE 'Added category column to Product';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'Product' AND column_name = 'ageGroup') THEN
+        ALTER TABLE "Product" ADD COLUMN "ageGroup" TEXT NOT NULL DEFAULT 'adult';
+        RAISE NOTICE 'Added ageGroup column to Product';
+    END IF;
+END $$;
+
+-- Step 2: Add missing columns to BrandPricing table if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'BrandPricing' AND column_name = 'category') THEN
+        ALTER TABLE "BrandPricing" ADD COLUMN "category" TEXT NOT NULL DEFAULT 'tshirt';
+        RAISE NOTICE 'Added category column to BrandPricing';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'BrandPricing' AND column_name = 'ageGroup') THEN
+        ALTER TABLE "BrandPricing" ADD COLUMN "ageGroup" TEXT NOT NULL DEFAULT 'adult';
+        RAISE NOTICE 'Added ageGroup column to BrandPricing';
+    END IF;
+END $$;
+
+-- Step 3: Create Brand table if it doesn't exist
+CREATE TABLE IF NOT EXISTS "Brand" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
+);
+
+-- Create unique index on Brand name if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'Brand_name_key') THEN
+        CREATE UNIQUE INDEX "Brand_name_key" ON "Brand"("name");
+        RAISE NOTICE 'Created unique index on Brand.name';
+    END IF;
+END $$;
+
+-- Step 4: Insert existing brands from products
+INSERT INTO "Brand" ("name", "createdAt", "updatedAt")
+SELECT DISTINCT "brand", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+FROM "Product"
+ON CONFLICT ("name") DO NOTHING;
+
+-- Step 5: Drop any existing unique constraint on brand only
 DO $$ 
 DECLARE
     constraint_name TEXT;
@@ -19,7 +74,7 @@ BEGIN
     END IF;
 END $$;
 
--- Create the correct unique constraint on (brand, category, ageGroup)
+-- Step 6: Create the correct unique constraint on (brand, category, ageGroup)
 DO $$
 BEGIN
     IF NOT EXISTS (
