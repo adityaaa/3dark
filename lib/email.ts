@@ -52,7 +52,7 @@ export async function sendEmail({
     }
 
     const { data, error } = await client.emails.send({
-      from: process.env.EMAIL_FROM || "3Dark <orders@3dark.in>",
+      from: process.env.EMAIL_FROM || "3Dark <order@3dark.in>",
       to: [to],
       subject,
       html,
