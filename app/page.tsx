@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "3Dark - Wildlife That Glows in the Dark | Premium Glow-in-Dark Apparel",
-  description: "India's first glow-in-the-dark wildlife streetwear. Best quality glow technology meets hyper-realistic animal designs. Tigers, leopards, pandas & more. Shop adult & kids collections.",
+  description: "India&apos;s first glow-in-the-dark wildlife streetwear. Best quality glow technology meets hyper-realistic animal designs. Tigers, leopards, pandas & more. Shop adult & kids collections.",
 };
 
 export default async function HomePage() {
@@ -52,7 +52,7 @@ export default async function HomePage() {
             <div className="flex-1 space-y-6">
               <div className="inline-block rounded-full border border-neon/30 bg-neon/10 px-4 py-1.5">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-neon font-semibold">
-                  ⚡ India's First Glow Wildlife Collection
+                  ⚡ India&apos;s First Glow Wildlife Collection
                 </p>
               </div>
               
@@ -279,7 +279,7 @@ export default async function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-3">Why Choose 3Dark?</h2>
             <p className="text-white/60 max-w-2xl mx-auto">
-              India's first and only glow-in-the-dark wildlife streetwear brand. 
+              India&apos;s first and only glow-in-the-dark wildlife streetwear brand. 
               We combine cutting-edge glow technology with stunning wildlife artistry.
             </p>
           </div>
@@ -400,7 +400,7 @@ export default async function HomePage() {
           </h2>
           
           <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto">
-            Join thousands of happy customers who've discovered the magic of 
+            Join thousands of happy customers who&apos;ve discovered the magic of 
             glow-in-the-dark wildlife apparel. Shop now and experience the difference.
           </p>
           
