@@ -416,7 +416,7 @@ export default async function HomePage() {
 
       {/* WHATSAPP FLOATING BUTTON */}
       <a
-        href="https://wa.me/919999999999?text=Hi!%20I'm%20interested%20in%203Dark%20glow-in-the-dark%20products"
+        href="https://wa.me/919425322743?text=Hi!%20I'm%20interested%20in%203Dark%20glow-in-the-dark%20products"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-full bg-green-500 px-5 py-4 text-white shadow-2xl transition-all hover:bg-green-600 hover:scale-110 hover:shadow-green-500/50"
