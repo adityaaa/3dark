@@ -20,12 +20,19 @@ model Product {
   tags        String      // comma-separated tags
   sizes       String      // comma-separated sizes
   sizePricing String?     // JSON: {"S": {"price": 499, "mrp": 599}, "M": {...}}
+  // INVENTORY MANAGEMENT
+  stockBySizes String?    // JSON: {"S": 10, "M": 15, "L": 20, "XL": 8, "XXL": 5}
+  totalStock   Int        @default(0) // Total stock across all sizes
+  lowStockThreshold Int   @default(5) // Alert when stock falls below this
+  trackInventory Boolean  @default(true) // Enable/disable inventory tracking
+  // END INVENTORY MANAGEMENT
   image       String      // primary image path
   gallery     String?     // comma-separated extra image paths
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
   reviews     Review[]    // Product reviews
+  inventoryTransactions InventoryTransaction[] // Stock movement history
 }
 
 model Brand {
@@ -132,4 +139,24 @@ model Review {
 
   @@index([productId])
   @@index([customerId])
+}
+
+// Track all inventory movements for audit trail
+model InventoryTransaction {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        String   // "sale", "restock", "adjustment", "return", "damage"
+  size        String   // Which size was affected
+  quantity    Int      // Positive for additions, negative for reductions
+  previousStock Int    // Stock before transaction
+  newStock    Int      // Stock after transaction
+  orderId     Int?     // If related to an order
+  notes       String?  // Admin notes
+  createdBy   String   @default("system") // "system" or admin email
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([orderId])
+  @@index([createdAt])
 }
