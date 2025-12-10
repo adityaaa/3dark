@@ -130,6 +130,26 @@ export default function AboutPage() {
                 </a>
               </p>
             </div>
+            <div className="mt-4 flex items-center gap-4">
+              <strong className="text-white">Follow Us:</strong>
+              <a
+                href="https://www.instagram.com/3darkclothings/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neon transition hover:brightness-110"
+              >
+                Instagram
+              </a>
+              <span className="text-white/30">•</span>
+              <a
+                href="https://www.facebook.com/3dark.official"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neon transition hover:brightness-110"
+              >
+                Facebook
+              </a>
+            </div>
           </div>
         </section>
 

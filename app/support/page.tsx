@@ -238,6 +238,26 @@ export default function SupportPage() {
         <p className="mt-4 text-sm text-white/60">
           We&apos;ll get back to you within 24 hours!
         </p>
+        <div className="mt-6 flex items-center justify-center gap-4 text-sm text-white/60">
+          <span>Follow us:</span>
+          <a
+            href="https://www.instagram.com/3darkclothings/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-neon transition hover:brightness-110"
+          >
+            Instagram
+          </a>
+          <span>•</span>
+          <a
+            href="https://www.facebook.com/3dark.official"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-neon transition hover:brightness-110"
+          >
+            Facebook
+          </a>
+        </div>
       </div>
     </div>
   );
