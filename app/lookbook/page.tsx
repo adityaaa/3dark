@@ -35,7 +35,7 @@ export default function LookbookPage() {
               Shop The Collection
             </Link>
             <a
-              href="https://instagram.com/3dark.in"
+              href="https://www.instagram.com/3darkclothings/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-full border-2 border-white/30 px-8 py-3.5 text-sm font-semibold text-white/90 transition-all hover:border-neon hover:text-neon hover:bg-neon/5"
@@ -141,7 +141,7 @@ export default function LookbookPage() {
               Shop Now
             </Link>
             <a
-              href="https://instagram.com/3dark.in"
+              href="https://www.instagram.com/3darkclothings/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-full border-2 border-neon/50 px-10 py-4 text-base font-semibold text-neon transition-all hover:bg-neon/10"
