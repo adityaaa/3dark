@@ -28,8 +28,8 @@ export function getDefaultSizes(ageGroup: AgeGroup): string {
   if (ageGroup === "kids") {
     return "2-4 Years, 4-6 Years, 6-8 Years, 8-10 Years, 10-12 Years, 12-14 Years";
   }
-  // Adult default
-  return "S, M, L, XL, XXL, XXXL";
+  // Adult default - RockChang sizing
+  return "XS, S, M, L, XL, 2XL, 3XL";
 }
 
 /**
