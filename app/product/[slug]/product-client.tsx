@@ -94,7 +94,9 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
         {/* Show size selector only if NOT free size */}
         {!isFreeSize && product.sizes.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs text-white/60 mb-1">Select Size</p>
+            <p className="text-xs text-white/60 mb-1">
+              Select Size {product.ageGroup === 'kids' && '(Age)'}
+            </p>
             <div className="flex flex-wrap gap-2">
               {product.sizes.map((s) => (
                 <button
