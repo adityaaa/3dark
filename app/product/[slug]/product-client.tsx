@@ -5,6 +5,7 @@
 import Image from "next/image";
 import type { StoreProduct } from "@/lib/types";
 import { useCart } from "@/components/CartContext";
+import SizeGuide from "@/components/SizeGuide";
 import { useState } from "react";
 
 export default function ProductClient({ product }: { product: StoreProduct }) {
@@ -94,9 +95,12 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
         {/* Show size selector only if NOT free size */}
         {!isFreeSize && product.sizes.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs text-white/60 mb-1">
-              Select Size {product.ageGroup === 'kids' && '(Age)'}
-            </p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-white/60">
+                Select Size {product.ageGroup === 'kids' && '(Age)'}
+              </p>
+              <SizeGuide category={product.category} ageGroup={product.ageGroup} />
+            </div>
             <div className="flex flex-wrap gap-2">
               {product.sizes.map((s) => (
                 <button
