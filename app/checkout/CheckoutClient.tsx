@@ -176,34 +176,46 @@ export default function CheckoutClient() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
 
-      {/* On-Demand Sourcing Timeline Banner */}
-      <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border-l-4 border-blue-500 p-6">
+      {/* Delivery Information Banner - Professional & Simple */}
+      <div className="mb-6 rounded-xl bg-gradient-to-r from-blue-950/30 to-indigo-950/30 border border-blue-500/30 p-6">
         <div className="flex items-start gap-4">
-          <div className="text-4xl">🏪</div>
+          <div className="text-3xl">📦</div>
           <div className="flex-1">
-            <h3 className="font-bold text-lg text-white mb-2">
-              How Our On-Demand Sourcing Works
+            <h3 className="font-bold text-lg text-white mb-3">
+              Delivery Information
             </h3>
-            <ol className="text-sm text-white/80 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-blue-400 min-w-[1.5rem]">1.</span>
-                <span>You place your order and we receive it instantly</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-blue-400 min-w-[1.5rem]">2.</span>
-                <span>We source your items from our trusted partner shops <strong>(2-3 days)</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-blue-400 min-w-[1.5rem]">3.</span>
-                <span>We pack with care and ship with tracking</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-semibold text-blue-400 min-w-[1.5rem]">4.</span>
-                <span>Delivered to your doorstep! 🎉</span>
-              </li>
-            </ol>
-            <div className="mt-3 text-xs text-white/70 bg-black/30 px-3 py-2 rounded-lg border border-white/10">
-              💡 <strong>Why we do this:</strong> Fresh products, quality assured, and eco-friendly (no wastage!)
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div className="flex items-start gap-2">
+                <span className="text-neon font-bold">✓</span>
+                <div>
+                  <p className="font-semibold text-white">Processing Time</p>
+                  <p className="text-white/70">2-3 business days</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-neon font-bold">✓</span>
+                <div>
+                  <p className="font-semibold text-white">Quality Checked</p>
+                  <p className="text-white/70">Inspected before shipping</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-neon font-bold">✓</span>
+                <div>
+                  <p className="font-semibold text-white">Free Shipping</p>
+                  <p className="text-white/70">On all orders</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-neon font-bold">✓</span>
+                <div>
+                  <p className="font-semibold text-white">Expected Delivery</p>
+                  <p className="text-white/70">5-7 business days</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-xs text-white/60 bg-black/20 px-3 py-2 rounded border border-white/10">
+              💡 Need it faster? We're working on express delivery options!
             </div>
           </div>
         </div>
