@@ -176,6 +176,39 @@ export default function CheckoutClient() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
 
+      {/* On-Demand Sourcing Timeline Banner */}
+      <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border-l-4 border-blue-500 p-6">
+        <div className="flex items-start gap-4">
+          <div className="text-4xl">🏪</div>
+          <div className="flex-1">
+            <h3 className="font-bold text-lg text-white mb-2">
+              How Our On-Demand Sourcing Works
+            </h3>
+            <ol className="text-sm text-white/80 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-blue-400 min-w-[1.5rem]">1.</span>
+                <span>You place your order and we receive it instantly</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-blue-400 min-w-[1.5rem]">2.</span>
+                <span>We source your items from our trusted partner shops <strong>(2-3 days)</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-blue-400 min-w-[1.5rem]">3.</span>
+                <span>We pack with care and ship with tracking</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-blue-400 min-w-[1.5rem]">4.</span>
+                <span>Delivered to your doorstep! 🎉</span>
+              </li>
+            </ol>
+            <div className="mt-3 text-xs text-white/70 bg-black/30 px-3 py-2 rounded-lg border border-white/10">
+              💡 <strong>Why we do this:</strong> Fresh products, quality assured, and eco-friendly (no wastage!)
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-8 md:grid-cols-3">
         {/* Left - Form */}
         <form onSubmit={handleSubmit} className="md:col-span-2 space-y-6">
