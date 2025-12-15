@@ -27,7 +27,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
         return copy;
       }
-      return [...prev, { product, size, qty }];
+      
+      // Create a copy of the product with the correct size-specific price
+      const productWithCorrectPrice = {
+        ...product,
+        price: product.sizePricing?.[size]?.price || product.price,
+        mrp: product.sizePricing?.[size]?.mrp || product.mrp,
+      };
+      
+      return [...prev, { product: productWithCorrectPrice, size, qty }];
     });
   }
 
