@@ -215,7 +215,7 @@ export default function CheckoutClient() {
               </div>
             </div>
             <div className="mt-4 text-xs text-white/60 bg-black/20 px-3 py-2 rounded border border-white/10">
-              💡 Need it faster? We're working on express delivery options!
+              💡 Need it faster? We&apos;re working on express delivery options!
             </div>
           </div>
         </div>

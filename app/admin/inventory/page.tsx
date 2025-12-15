@@ -1,7 +1,7 @@
 // app/admin/inventory/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Package, AlertTriangle, Search, RefreshCw } from "lucide-react";
@@ -32,7 +32,7 @@ export default function InventoryPage() {
   const [stockInput, setStockInput] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
 
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -47,11 +47,11 @@ export default function InventoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, search]);
 
   useEffect(() => {
     fetchInventory();
-  }, [filter]);
+  }, [fetchInventory]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

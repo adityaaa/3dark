@@ -3,7 +3,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -11,6 +11,8 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ export default function AdminLogin() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/admin");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (err: any) {

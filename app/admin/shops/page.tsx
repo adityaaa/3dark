@@ -42,7 +42,7 @@ export default function ShopsPage() {
   useEffect(() => {
     if (status === "loading") return;
     if (!session || (session.user as any)?.role !== "admin") {
-      router.push("/admin/login");
+      router.push("/admin/login?callbackUrl=/admin/shops");
     }
   }, [session, status, router]);
 

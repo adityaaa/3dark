@@ -30,6 +30,12 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             <Link href="/admin/orders" className="hover:text-neon">
               Orders
             </Link>
+            <Link href="/admin/shops" className="hover:text-neon">
+              Shops
+            </Link>
+            <Link href="/admin/inventory" className="hover:text-neon">
+              Inventory
+            </Link>
             <Link href="/admin/settings" className="hover:text-neon">
               Settings
             </Link>
