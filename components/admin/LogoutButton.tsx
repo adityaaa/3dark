@@ -1,11 +1,21 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
+  const router = useRouter();
+  
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/admin/login" });
+    // Sign out and redirect
+    await signOut({ 
+      callbackUrl: "/admin/login",
+      redirect: true 
+    });
+    
+    // Force reload to clear any cached data
+    router.refresh();
   };
 
   return (

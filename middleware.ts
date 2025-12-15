@@ -8,9 +8,11 @@ export default withAuth(
     const path = req.nextUrl.pathname;
 
     // Admin routes - require admin role
-    if (path.startsWith("/admin")) {
+    if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
       if (!token || (token as any).role !== "admin") {
-        return NextResponse.redirect(new URL("/admin/login", req.url));
+        const loginUrl = new URL("/admin/login", req.url);
+        loginUrl.searchParams.set("callbackUrl", path);
+        return NextResponse.redirect(loginUrl);
       }
     }
 
@@ -28,14 +30,22 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
         
-        // Allow access if token exists
-        if (token) return true;
-        
-        // For protected routes, require authentication
-        if (path.startsWith("/admin") || path.startsWith("/account")) {
-          return false;
+        // Always allow login pages
+        if (path === "/admin/login" || path === "/login") {
+          return true;
         }
         
+        // For protected admin routes, require admin token
+        if (path.startsWith("/admin")) {
+          return !!token && (token as any).role === "admin";
+        }
+        
+        // For protected account routes, require customer token
+        if (path.startsWith("/account")) {
+          return !!token && (token as any).role === "customer";
+        }
+        
+        // Allow all other routes
         return true;
       },
     },
@@ -45,10 +55,11 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Match all admin routes except the login page
+     * Match all admin routes
      * Match all account routes
+     * Exclude static files and api routes
      */
-    "/admin/((?!login).*)",
+    "/admin/:path*",
     "/account/:path*",
   ],
 };
