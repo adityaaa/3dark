@@ -3,14 +3,13 @@
 
 import { signIn } from "next-auth/react";
 import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
@@ -26,16 +25,24 @@ export default function AdminLogin() {
         redirect: false,
       });
 
+      console.log("Login result:", result);
+
       if (result?.error) {
         setError("Invalid email or password");
-      } else {
-        router.push(callbackUrl);
-        router.refresh();
+        setLoading(false);
+      } else if (result?.ok) {
+        // Success! Wait a moment for session to be set
+        console.log("Login successful, redirecting to:", callbackUrl);
+        
+        // Small delay to ensure session is saved
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force a hard navigation
+        globalThis.location.href = callbackUrl;
       }
     } catch (err: any) {
       console.error("Login error:", err);
       setError("An error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
