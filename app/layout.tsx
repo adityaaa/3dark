@@ -49,7 +49,7 @@ function Footer() {
                 </svg>
               </a>
               <a
-                href="https://wa.me/917903936694"
+                href="https://wa.me/919425322743"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/60 transition hover:text-neon"
