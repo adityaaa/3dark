@@ -1,11 +1,9 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,22 +15,27 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Get callback URL from query params if available
+      const urlParams = new URLSearchParams(globalThis.location.search);
+      const callbackUrl = urlParams.get("callbackUrl") || "/account";
+
+      // Use NextAuth's built-in redirect to ensure session is set before navigation
       const result = await signIn("customer-login", {
         email,
         password,
-        redirect: false,
+        redirect: true, // Let NextAuth handle the redirect
+        callbackUrl: callbackUrl,
       });
 
+      // If redirect is true, this code won't execute on success
+      // It only executes if there's an error
       if (result?.error) {
         setError("Invalid email or password");
-      } else if (result?.ok) {
-        router.push("/account");
-        router.refresh();
+        setLoading(false);
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };

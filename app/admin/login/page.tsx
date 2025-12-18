@@ -19,26 +19,19 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
+      // Use NextAuth's built-in redirect to ensure session is set before navigation
       const result = await signIn("admin-login", {
         email,
         password,
-        redirect: false,
+        redirect: true, // Let NextAuth handle the redirect
+        callbackUrl: callbackUrl,
       });
 
-      console.log("Login result:", result);
-
+      // If redirect is true, this code won't execute on success
+      // It only executes if there's an error
       if (result?.error) {
         setError("Invalid email or password");
         setLoading(false);
-      } else if (result?.ok) {
-        // Success! Wait a moment for session to be set
-        console.log("Login successful, redirecting to:", callbackUrl);
-        
-        // Small delay to ensure session is saved
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Force a hard navigation
-        globalThis.location.href = callbackUrl;
       }
     } catch (err: any) {
       console.error("Login error:", err);

@@ -42,13 +42,15 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             <Link href="/" className="text-white/60 hover:text-white">
               View site
             </Link>
-            <span className="text-white/40">|</span>
             {session?.user && (
-              <span className="text-white/60" title={session.user.email || ''}>
-                {session.user.name}
-              </span>
+              <>
+                <span className="text-white/40">|</span>
+                <span className="text-white/60" title={session.user.email || ''}>
+                  {session.user.name}
+                </span>
+                <LogoutButton />
+              </>
             )}
-            <LogoutButton />
           </nav>
         </div>
       </header>
