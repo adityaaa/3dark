@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { generateOrderNumber, calculateShipping } from "@/lib/payment";
-import { sendOrderConfirmationEmail } from "@/lib/email";
+import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -102,17 +102,27 @@ export async function POST(req: Request) {
       },
     });
 
+    // Fetch product images for each order item
+    const productIds = order.items.map((item) => item.productId);
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, image: true },
+    });
+    const productImageMap = Object.fromEntries(products.map(p => [p.id, p.image]));
+
     // Send order confirmation email
     try {
-      await sendOrderConfirmationEmail({
+      const orderEmailData = {
         orderNumber: order.orderNumber,
         customerName: order.customerName,
         customerEmail: order.customerEmail,
+        customerPhone: order.customerPhone,
         items: order.items.map((item) => ({
           name: item.name,
           size: item.size,
           quantity: item.quantity,
           price: item.price,
+          image: productImageMap[item.productId] || null,
         })),
         subtotal: order.subtotal,
         shipping: order.shipping,
@@ -123,8 +133,12 @@ export async function POST(req: Request) {
         pincode: order.pincode,
         paymentMethod: order.paymentMethod,
         paymentStatus: order.paymentStatus,
-      });
-      console.log("✅ Order confirmation email sent");
+      };
+      // Send to customer
+      await sendOrderConfirmationEmail(orderEmailData);
+      // Send to admin (custom format)
+      await sendAdminOrderNotificationEmail(orderEmailData);
+      console.log("✅ Order confirmation email sent to customer and admin");
     } catch (emailError) {
       console.error("❌ Failed to send order confirmation email:", emailError);
       // Don't fail the order if email fails

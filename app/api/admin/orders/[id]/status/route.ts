@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 // PATCH /api/admin/orders/[id]/status - Update order status
 export async function PATCH(
@@ -75,6 +76,35 @@ export async function PATCH(
           notes: shopNotes || null,
         },
       });
+    }
+
+    // Send order confirmation email to customer and admin when confirmed
+    if (orderStatus === "confirmed") {
+      // Fetch order items
+      const items = await prisma.orderItem.findMany({
+        where: { orderId: updatedOrder.id },
+        select: { name: true, size: true, quantity: true, price: true },
+      });
+      // Prepare order data for email
+      const orderEmailData = {
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        items,
+        subtotal: updatedOrder.subtotal,
+        shipping: updatedOrder.shipping,
+        total: updatedOrder.total,
+        shippingAddress: updatedOrder.shippingAddress,
+        city: updatedOrder.city,
+        state: updatedOrder.state,
+        pincode: updatedOrder.pincode,
+        paymentMethod: updatedOrder.paymentMethod,
+        paymentStatus: updatedOrder.paymentStatus,
+      };
+      // Send to customer
+      await sendOrderConfirmationEmail(orderEmailData);
+      // Send to admin
+      await sendOrderConfirmationEmail({ ...orderEmailData, customerEmail: "order@3dark.in" });
     }
 
     return NextResponse.json({ success: true, order: updatedOrder });

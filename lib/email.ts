@@ -82,6 +82,7 @@ export function generateOrderConfirmationEmail(order: {
     size: string;
     quantity: number;
     price: number;
+    image?: string | null;
   }>;
   subtotal: number;
   shipping: number;
@@ -97,9 +98,12 @@ export function generateOrderConfirmationEmail(order: {
     .map(
       (item) => `
     <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-        <strong>${item.name}</strong><br/>
-        <span style="color: #6b7280; font-size: 14px;">Size: ${item.size}</span>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 12px;">
+        ${item.image ? `<img src="${item.image}" alt="${item.name}" width="56" height="56" style="border-radius: 8px; border: 1px solid #eee; object-fit: cover; background: #fafafa;" />` : ""}
+        <div>
+          <strong>${item.name}</strong><br/>
+          <span style="color: #6b7280; font-size: 14px;">Size: ${item.size}</span>
+        </div>
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
         ${item.quantity}
@@ -264,6 +268,7 @@ export async function sendOrderConfirmationEmail(order: {
     size: string;
     quantity: number;
     price: number;
+    image?: string | null;
   }>;
   subtotal: number;
   shipping: number;
@@ -276,7 +281,6 @@ export async function sendOrderConfirmationEmail(order: {
   paymentStatus: string;
 }) {
   const html = generateOrderConfirmationEmail(order);
-
   return sendEmail({
     to: order.customerEmail,
     subject: `Order Confirmation - ${order.orderNumber} | 3Dark`,
@@ -387,6 +391,140 @@ export async function sendOrderStatusEmail(
   return sendEmail({
     to: order.customerEmail,
     subject: `Order Update: ${statusInfo.title} - ${order.orderNumber} | 3Dark`,
+    html,
+  });
+}
+
+// Send admin order notification email
+export async function sendAdminOrderNotificationEmail(order: {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  items: Array<{
+    name: string;
+    size: string;
+    quantity: number;
+    price: number;
+    image?: string | null;
+  }>;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  shippingAddress: string;
+  city: string;
+  state: string;
+  pincode: string;
+  paymentMethod: string;
+  paymentStatus: string;
+}) {
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 12px;">
+        ${item.image ? `<img src="${item.image}" alt="${item.name}" width="56" height="56" style="border-radius: 8px; border: 1px solid #eee; object-fit: cover; background: #fafafa;" />` : ""}
+        <div>
+          <strong>${item.name}</strong><br/>
+          <span style="color: #6b7280; font-size: 14px;">Size: ${item.size}</span>
+        </div>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+        ${item.quantity}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+        ₹${item.price}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+        <strong>₹${item.price * item.quantity}</strong>
+      </td>
+    </tr>
+  `
+    )
+    .join("");
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Order Received - ${order.orderNumber}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 40px 30px; text-align: center;">
+              <img src="https://3dark.in/logos/logo.png" alt="3Dark Logo" width="80" height="80" style="margin: 0 auto 20px; display: block;" />
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">3DARK</h1>
+              <p style="margin: 10px 0 0 0; color: #a0a0a0; font-size: 14px;">ADMIN COPY – New Order Received</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px;">
+              <h2 style="margin: 0 0 10px 0; color: #d97706; font-size: 22px;">Order #${order.orderNumber}</h2>
+              <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px;"><strong>Customer:</strong> ${order.customerName} (${order.customerEmail}${order.customerPhone ? ", " + order.customerPhone : ""})</p>
+              <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px;"><strong>Shipping:</strong> ${order.shippingAddress}, ${order.city}, ${order.state} - ${order.pincode}</p>
+              <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px;"><strong>Payment:</strong> ${order.paymentMethod} (${order.paymentStatus})</p>
+              <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px;"><strong>Total:</strong> ₹${order.total}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px;">
+              <h3 style="margin: 0 0 20px 0; color: #111827; font-size: 18px;">Order Items</h3>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                <thead>
+                  <tr style="background-color: #f9fafb;">
+                    <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 14px; border-bottom: 2px solid #e5e7eb;">Item</th>
+                    <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 14px; border-bottom: 2px solid #e5e7eb;">Qty</th>
+                    <th style="padding: 12px; text-align: right; color: #6b7280; font-size: 14px; border-bottom: 2px solid #e5e7eb;">Price</th>
+                    <th style="padding: 12px; text-align: right; color: #6b7280; font-size: 14px; border-bottom: 2px solid #e5e7eb;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                </tbody>
+              </table>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280;">Subtotal</td>
+                  <td style="padding: 8px 0; text-align: right;">₹${order.subtotal}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280;">Shipping</td>
+                  <td style="padding: 8px 0; text-align: right; color: #10b981; font-weight: bold;">
+                    ${order.shipping === 0 ? "FREE" : `₹${order.shipping}`}
+                  </td>
+                </tr>
+                <tr style="border-top: 2px solid #e5e7eb;">
+                  <td style="padding: 12px 0; font-size: 18px; font-weight: bold; color: #111827;">Total</td>
+                  <td style="padding: 12px 0; text-align: right; font-size: 18px; font-weight: bold; color: #111827;">
+                    ₹${order.total}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px; text-align: center; background-color: #111827; color: #9ca3af;">
+              <p style="margin: 0 0 10px 0; font-size: 14px;">This is an automated admin notification. Please process the order in your dashboard.</p>
+              <p style="margin: 0; font-size: 12px;">© ${new Date().getFullYear()} 3Dark. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  return sendEmail({
+    to: "order@3dark.in",
+    subject: `New Order Received - ${order.orderNumber} | 3Dark`,
     html,
   });
 }
