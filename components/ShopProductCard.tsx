@@ -69,20 +69,22 @@ export default function ShopProductCard({
   return (
     <Link
       href={`/product/${slug}`}
-      className="group rounded-2xl bg-bg-soft/80 p-3 border border-white/5 hover:border-neon/40 hover:shadow-glow transition"
+      className="group rounded-2xl bg-bg-soft/80 p-2 sm:p-3 border border-white/5 hover:border-neon/40 hover:shadow-glow transition active:scale-[0.98] touch-manipulation"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         setIsHovering(false);
         setCurrentImageIndex(0);
       }}
     >
-      <div className="relative h-64 w-full overflow-hidden rounded-2xl bg-black/60">
+      {/* Product Image - Better aspect ratio for mobile */}
+      <div className="relative aspect-square sm:h-64 w-full overflow-hidden rounded-xl sm:rounded-2xl bg-black/60">
         <Image
           src={displayImage}
           alt={name}
           fill
           className="object-contain transition-opacity duration-300"
           priority={false}
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
         />
         
         {/* Image counter badge - shows on hover if multiple images */}
@@ -91,24 +93,34 @@ export default function ShopProductCard({
             {currentImageIndex + 1}/{images.length}
           </div>
         )}
+        
+        {/* Discount Badge */}
+        {mrp > price && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+            {Math.round(((mrp - price) / mrp) * 100)}% OFF
+          </div>
+        )}
       </div>
 
-      <div className="mt-3 flex flex-col gap-1">
-        <span className="text-sm font-medium group-hover:text-neon line-clamp-2">
+      <div className="mt-2 sm:mt-3 flex flex-col gap-0.5 sm:gap-1">
+        {/* Product Name - Better mobile sizing */}
+        <span className="text-xs sm:text-sm font-medium group-hover:text-neon line-clamp-2 leading-tight">
           {name}
         </span>
-        <span className="text-[11px] uppercase tracking-wide text-white/40">
+        
+        {/* Brand */}
+        <span className="text-[10px] sm:text-[11px] uppercase tracking-wide text-white/40">
           {brand}
         </span>
 
-        {/* Star Rating */}
+        {/* Star Rating - More compact on mobile */}
         {reviewStats && reviewStats.total > 0 && (
-          <div className="flex items-center gap-1.5 mt-1">
+          <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }, (_, i) => (
                 <Star
                   key={`star-${id}-${i}`}
-                  className={`w-3 h-3 ${
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
                     i < Math.round(reviewStats.average)
                       ? "fill-yellow-400 text-yellow-400"
                       : "fill-gray-600 text-gray-600"
@@ -116,16 +128,17 @@ export default function ShopProductCard({
                 />
               ))}
             </div>
-            <span className="text-[10px] text-white/60">
+            <span className="text-[9px] sm:text-[10px] text-white/60">
               {reviewStats.average.toFixed(1)} ({reviewStats.total})
             </span>
           </div>
         )}
 
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-sm font-semibold">₹{price}</span>
+        {/* Price - Larger on mobile for better visibility */}
+        <div className="mt-1 sm:mt-1.5 flex items-baseline gap-1.5 sm:gap-2">
+          <span className="text-sm sm:text-base font-bold text-white">₹{price}</span>
           {mrp > price && (
-            <span className="text-[11px] line-through text-white/40">
+            <span className="text-[10px] sm:text-[11px] line-through text-white/40">
               ₹{mrp}
             </span>
           )}
