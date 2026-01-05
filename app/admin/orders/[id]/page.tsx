@@ -9,7 +9,13 @@ export default async function OrderDetailPage({
 }) {
   const order = await prisma.order.findUnique({
     where: { id: parseInt(params.id) },
-    include: { items: true },
+    include: { 
+      items: {
+        include: {
+          product: true // Include product details for images
+        }
+      }
+    },
   });
 
   if (!order) {

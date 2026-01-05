@@ -38,6 +38,10 @@ type Order = {
     size: string;
     quantity: number;
     price: number;
+    product: {
+      slug: string;
+      image: string;
+    };
   }>;
 };
 
@@ -177,7 +181,10 @@ export default function OrderDetailClient({ order }: { order: Order }) {
       .join(" ");
   };
 
-  const canConfirm = order.orderStatus === "pending_confirmation";
+  // COD orders start at "pending_payment" and need to be confirmed
+  // Paid orders (Razorpay) start at "pending_confirmation" after payment
+  const isPendingPayment = order.orderStatus === "pending_payment";
+  const canConfirm = order.orderStatus === "pending_confirmation" || (order.paymentMethod === "cod" && order.orderStatus === "pending_payment");
   const canSource = order.orderStatus === "confirmed";
   const canPack = order.orderStatus === "sourcing";
   const canShip = order.orderStatus === "packing";
@@ -218,8 +225,15 @@ export default function OrderDetailClient({ order }: { order: Order }) {
               <div className="bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/30 rounded-lg p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <span className="text-2xl">⏳</span>
-                  Pending Confirmation - Check Shop Availability
+                  {order.paymentMethod === "cod" 
+                    ? "COD Order - Check Shop Availability" 
+                    : "Paid Order - Check Shop Availability"}
                 </h2>
+                {order.paymentMethod === "cod" && (
+                  <div className="mb-4 bg-yellow-500/10 border border-yellow-500/30 rounded px-3 py-2 text-sm text-yellow-200">
+                    💵 Cash on Delivery - Payment will be collected upon delivery
+                  </div>
+                )}
                 
                 <div className="space-y-4">
                   <div>
@@ -386,14 +400,24 @@ export default function OrderDetailClient({ order }: { order: Order }) {
                 {order.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center py-3 border-b border-gray-800 last:border-0"
+                    className="flex gap-4 items-center py-3 border-b border-gray-800 last:border-0"
                   >
-                    <div>
+                    {/* Product Image */}
+                    <img 
+                      src={item.product.image} 
+                      alt={item.name}
+                      className="w-20 h-20 object-cover rounded-lg bg-gray-800"
+                    />
+                    
+                    {/* Product Details */}
+                    <div className="flex-1">
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-gray-400">
                         Size: {item.size} × {item.quantity}
                       </p>
                     </div>
+                    
+                    {/* Price */}
                     <div className="text-right">
                       <p className="font-semibold">₹{item.price}</p>
                       <p className="text-sm text-gray-400">

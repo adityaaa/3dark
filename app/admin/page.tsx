@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   // Get stats
-  const [orderCount, productCount, recentOrders] = await Promise.all([
+  const [orderCount, productCount, customerCount, recentOrders] = await Promise.all([
     prisma.order.count(),
     prisma.product.count(),
+    prisma.customer.count(),
     prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
@@ -60,7 +61,7 @@ export default async function AdminDashboard() {
               <h3 className="text-gray-400">Customers</h3>
               <Users className="w-6 h-6 text-yellow-400" />
             </div>
-            <p className="text-3xl font-bold">{orderCount}</p>
+            <p className="text-3xl font-bold">{customerCount}</p>
           </div>
         </div>
 
@@ -87,12 +88,35 @@ export default async function AdminDashboard() {
           </Link>
 
           <Link
+            href="/admin/customers"
+            className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors"
+          >
+            <h2 className="text-2xl font-bold mb-2">👥 Customers</h2>
+            <p className="text-gray-400">
+              View customer list, order history, and analytics
+            </p>
+          </Link>
+
+          <Link
             href="/admin/inventory"
             className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors border-2 border-neon/30"
           >
             <h2 className="text-2xl font-bold mb-2">📊 Inventory</h2>
             <p className="text-gray-400">
               Track stock levels, update quantities, and manage product availability
+            </p>
+          </Link>
+        </div>
+
+        {/* Additional Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Link
+            href="/admin/shops"
+            className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors"
+          >
+            <h2 className="text-2xl font-bold mb-2">🏪 Partner Shops</h2>
+            <p className="text-gray-400">
+              Manage your network of partner shops for sourcing products
             </p>
           </Link>
 
