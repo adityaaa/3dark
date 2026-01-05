@@ -82,7 +82,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
@@ -96,9 +96,49 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      console.log("🔄 REDIRECT CALLBACK:", { url, baseUrl });
+      
+      // If there's a callbackUrl in the query, use it
+      if (url.startsWith(baseUrl)) {
+        const urlObj = new URL(url);
+        const callbackUrl = urlObj.searchParams.get("callbackUrl");
+        if (callbackUrl) {
+          console.log("✅ Using callbackUrl:", callbackUrl);
+          return callbackUrl.startsWith("/") ? `${baseUrl}${callbackUrl}` : callbackUrl;
+        }
+      }
+      
+      // Default redirects based on URL path
+      if (url.includes("/admin/login") || url.includes("/api/auth/callback/admin-login")) {
+        console.log("✅ Admin login detected, redirecting to /admin");
+        return `${baseUrl}/admin`;
+      }
+      
+      if (url.includes("/login") || url.includes("/api/auth/callback/customer-login")) {
+        console.log("✅ Customer login detected, redirecting to /account");
+        return `${baseUrl}/account`;
+      }
+      
+      // Allows relative callback URLs
+      if (url.startsWith("/")) {
+        console.log("✅ Relative URL, prepending baseUrl");
+        return `${baseUrl}${url}`;
+      }
+      
+      // Allows callback URLs on the same origin
+      if (url.startsWith(baseUrl)) {
+        console.log("✅ Same origin, using as-is");
+        return url;
+      }
+      
+      console.log("⚠️ Fallback to baseUrl");
+      return baseUrl;
+    },
   },
   pages: {
     signIn: "/admin/login",
+    error: "/auth/error",
   },
   session: {
     strategy: "jwt",

@@ -19,23 +19,34 @@ export default function LoginPage() {
       const urlParams = new URLSearchParams(globalThis.location.search);
       const callbackUrl = urlParams.get("callbackUrl") || "/account";
 
-      // Use NextAuth's built-in redirect to ensure session is set before navigation
+      console.log("🔐 Attempting customer login...");
+
+      // Try with redirect: false first to handle manually
       const result = await signIn("customer-login", {
         email,
         password,
-        redirect: true, // Let NextAuth handle the redirect
-        callbackUrl: callbackUrl,
+        redirect: false, // Handle redirect manually for better control
       });
 
-      // If redirect is true, this code won't execute on success
-      // It only executes if there's an error
+      console.log("📝 Login result:", result);
+
       if (result?.error) {
+        console.error("❌ Login failed:", result.error);
         setError("Invalid email or password");
+        setLoading(false);
+      } else if (result?.ok) {
+        console.log("✅ Login successful! Redirecting to:", callbackUrl);
+        // Small delay to ensure session is set
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // Force redirect
+        globalThis.location.href = callbackUrl;
+      } else {
+        setError("An unexpected error occurred");
         setLoading(false);
       }
     } catch (err) {
+      console.error("❌ Login error:", err);
       setError("An error occurred. Please try again.");
-      console.error(err);
       setLoading(false);
     }
   };
