@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         total,
         paymentMethod: paymentMethod || "razorpay",
         paymentStatus: "pending",
-        orderStatus: "pending",
+        orderStatus: paymentMethod === "cod" ? "pending" : "pending_payment", // COD orders need manual confirmation, Razorpay waits for payment
         notes: customer.notes || null,
         items: {
           create: items.map((item: any) => ({

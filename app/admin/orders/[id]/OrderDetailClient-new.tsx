@@ -181,10 +181,12 @@ export default function OrderDetailClient({ order }: { order: Order }) {
       .join(" ");
   };
 
-  // COD orders start at "pending_payment" and need to be confirmed
+  // COD orders start at "pending" status and need to be confirmed
   // Paid orders (Razorpay) start at "pending_confirmation" after payment
-  const isPendingPayment = order.orderStatus === "pending_payment";
-  const canConfirm = order.orderStatus === "pending_confirmation" || (order.paymentMethod === "cod" && order.orderStatus === "pending_payment");
+  const canConfirm = 
+    order.orderStatus === "pending_confirmation" || 
+    (order.paymentMethod === "cod" && order.orderStatus === "pending") ||
+    (order.paymentMethod === "cod" && order.orderStatus === "pending_payment");
   const canSource = order.orderStatus === "confirmed";
   const canPack = order.orderStatus === "sourcing";
   const canShip = order.orderStatus === "packing";
