@@ -4,6 +4,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET /api/admin/inventory - Get all products with inventory status
 export async function GET(req: NextRequest) {
   try {
