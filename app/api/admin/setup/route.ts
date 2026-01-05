@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   try {
     // Get the setup secret from request body
     const body = await request.json();
-    const { secret } = body;
+    const { secret, password, email } = body;
     
     // Security check - verify setup secret
     const expectedSecret = process.env.ADMIN_SETUP_SECRET;
@@ -35,9 +35,9 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
 
-    // Admin credentials
-    const adminEmail = 'admin@3dark.in';
-    const adminPassword = 'admin123'; // Change this after first login!
+    // Admin credentials (allow custom email and password)
+    const adminEmail = email || 'admin@3dark.in';
+    const adminPassword = password || 'admin123'; // Use provided password or default
     const adminName = 'Admin';
 
     // Check if admin already exists
