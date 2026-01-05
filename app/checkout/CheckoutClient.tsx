@@ -231,7 +231,7 @@ export default function CheckoutClient() {
 
       <div className="grid gap-6 md:gap-8 md:grid-cols-3">
         {/* Left - Form */}
-        <form onSubmit={handleSubmit} className="md:col-span-2 space-y-4 md:space-y-6">
+        <form id="checkout-form" onSubmit={handleSubmit} className="md:col-span-2 space-y-4 md:space-y-6">
           {/* Contact Information */}
           <div className="rounded-xl md:rounded-2xl bg-black/60 p-4 md:p-6 border border-white/10">
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Contact Information</h2>
