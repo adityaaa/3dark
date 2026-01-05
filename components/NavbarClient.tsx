@@ -159,8 +159,8 @@ export default function NavbarClient() {
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className="md:hidden fixed inset-0 top-[57px] bg-bg/98 backdrop-blur-lg z-40 border-t border-white/10 animate-in slide-in-from-top duration-300">
-          <div className="flex flex-col px-4 py-6 space-y-1 overflow-y-auto max-h-[calc(100vh-57px)]">
+        <div className="md:hidden fixed inset-0 top-[57px] bg-bg backdrop-blur-xl z-40 border-t border-white/10 animate-in slide-in-from-top duration-200">
+          <div className="flex flex-col px-4 py-6 space-y-1 overflow-y-auto max-h-[calc(100vh-57px)] bg-gradient-to-b from-bg via-bg-soft to-bg">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
