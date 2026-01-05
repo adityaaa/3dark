@@ -26,15 +26,15 @@ export default async function ShopPage() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Shop</h1>
-        <p className="text-xs text-white/60">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
+        <h1 className="text-2xl md:text-3xl font-semibold">Shop</h1>
+        <p className="text-xs md:text-sm text-white/60">
           Glow-in-the-dark tees, imported and curated.
         </p>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products.map((p) => {
           const { price: displayPrice, mrp: displayMrp } = getLowestPrice(p);
           return (

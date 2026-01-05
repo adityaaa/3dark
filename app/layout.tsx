@@ -135,7 +135,10 @@ export const metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-bg text-white">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+      </head>
+      <body className="min-h-screen bg-bg text-white antialiased">
         <Providers>
           <CartProvider>
             <div className="flex min-h-screen flex-col">
