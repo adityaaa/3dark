@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CartProvider } from "@/components/CartContext";
 import NavbarClient from "@/components/NavbarClient";
 import { Providers } from "@/components/Providers";
+import { Toaster } from "react-hot-toast";
 
 function Footer() {
   return (
@@ -141,6 +142,26 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       <body className="min-h-screen bg-bg text-white antialiased">
         <Providers>
           <CartProvider>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#0B0F18',
+                  color: '#fff',
+                  border: '1px solid rgba(195, 255, 60, 0.3)',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  maxWidth: '500px',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#C3FF3C',
+                    secondary: '#0B0F18',
+                  },
+                },
+              }}
+            />
             <div className="flex min-h-screen flex-col">
               <NavbarClient />
               <main className="flex-1 bg-gradient-to-b from-bg-soft to-black">

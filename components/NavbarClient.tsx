@@ -13,7 +13,18 @@ export default function NavbarClient() {
   const itemCount = cart.items.reduce((s, i) => s + i.qty, 0);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [cartPulse, setCartPulse] = useState(false);
+  const prevItemCount = useRef(itemCount);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Trigger cart animation when item count increases
+  useEffect(() => {
+    if (itemCount > prevItemCount.current) {
+      setCartPulse(true);
+      setTimeout(() => setCartPulse(false), 600);
+    }
+    prevItemCount.current = itemCount;
+  }, [itemCount]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -124,10 +135,10 @@ export default function NavbarClient() {
           )}
 
           {/* Cart - Desktop */}
-          <Link href="/cart" className="relative hover:text-neon transition-colors">
+          <Link href="/cart" className={`relative hover:text-neon transition-colors ${cartPulse ? 'animate-bounce' : ''}`}>
             <ShoppingCart className="w-5 h-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-neon text-[10px] font-bold text-black">
+              <span className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-neon text-[10px] font-bold text-black transition-all ${cartPulse ? 'scale-125' : 'scale-100'}`}>
                 {itemCount}
               </span>
             )}
@@ -137,10 +148,10 @@ export default function NavbarClient() {
         {/* Mobile & Tablet: Cart + Hamburger */}
         <div className="flex lg:hidden items-center gap-4 z-50">
           {/* Cart - Mobile & Tablet */}
-          <Link href="/cart" className="relative hover:text-neon transition-colors">
+          <Link href="/cart" className={`relative hover:text-neon transition-colors ${cartPulse ? 'animate-bounce' : ''}`}>
             <ShoppingCart className="w-6 h-6" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-neon text-[10px] font-bold text-black">
+              <span className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-neon text-[10px] font-bold text-black transition-all ${cartPulse ? 'scale-125' : 'scale-100'}`}>
                 {itemCount}
               </span>
             )}

@@ -7,12 +7,15 @@ import type { StoreProduct } from "@/lib/types";
 import { useCart } from "@/components/CartContext";
 import SizeGuide from "@/components/SizeGuide";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { Check } from "lucide-react";
 
 export default function ProductClient({ product }: { product: StoreProduct }) {
   const { addItem } = useCart();
   const isFreeSize = product.sizes.length === 1 && (product.sizes[0] === "Free Size" || product.sizes[0] === "One Size");
   const [size, setSize] = useState(isFreeSize ? product.sizes[0] : (product.sizes[0] || "Free"));
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isAdding, setIsAdding] = useState(false);
 
   const activeImage = product.images[activeIndex] || product.image;
 
@@ -23,7 +26,39 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
   };
 
   function handleAddToCart() {
+    setIsAdding(true);
     addItem(product, size);
+    
+    // Show success toast with product info
+    toast.success(
+      (t) => (
+        <div className="flex items-center gap-3">
+          <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-black/60 border border-neon/40">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-contain p-1"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm flex items-center gap-2">
+              <Check className="w-4 h-4 text-neon flex-shrink-0" />
+              Added to cart!
+            </p>
+            <p className="text-xs text-white/70 truncate">{product.name}</p>
+            <p className="text-xs text-white/50">Size: {size}</p>
+          </div>
+        </div>
+      ),
+      {
+        duration: 3000,
+        position: 'top-center',
+      }
+    );
+    
+    // Reset button state after animation
+    setTimeout(() => setIsAdding(false), 1000);
   }
 
   return (
@@ -140,13 +175,21 @@ export default function ProductClient({ product }: { product: StoreProduct }) {
           </div>
         </div>
 
-        <div className="mt-4 sm:mt-6 sticky bottom-4 sm:static">
+        <div className="mt-4 sm:mt-6 sticky bottom-4 sm:static z-10">
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full sm:w-auto rounded-xl sm:rounded-full bg-neon px-6 py-4 sm:px-6 sm:py-3 text-base font-bold text-black shadow-lg shadow-neon/50 hover:shadow-xl hover:brightness-95 active:scale-[0.98] transition-all min-h-[52px] touch-manipulation"
+            disabled={isAdding}
+            className="w-full sm:w-auto rounded-xl sm:rounded-full bg-neon px-6 py-4 sm:px-6 sm:py-3 text-base font-bold text-black shadow-lg shadow-neon/50 hover:shadow-xl hover:brightness-95 active:scale-[0.98] transition-all min-h-[52px] touch-manipulation disabled:opacity-80 flex items-center justify-center gap-2"
           >
-            Add to cart – ₹{selectedPricing.price}
+            {isAdding ? (
+              <>
+                <Check className="w-5 h-5 animate-bounce" />
+                <span>Added!</span>
+              </>
+            ) : (
+              <span>Add to cart – ₹{selectedPricing.price}</span>
+            )}
           </button>
         </div>
 
