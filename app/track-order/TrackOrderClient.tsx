@@ -21,7 +21,7 @@ interface OrderStatus {
 
 export default function TrackOrderClient() {
   const [orderNumber, setOrderNumber] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<OrderStatus | null>(null);
   const [error, setError] = useState("");
@@ -34,7 +34,7 @@ export default function TrackOrderClient() {
 
     try {
       const res = await fetch(
-        `/api/orders/track?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`
+        `/api/track-order?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`
       );
       const data = await res.json();
 
@@ -42,10 +42,11 @@ export default function TrackOrderClient() {
         setOrder(data.order);
       } else {
         setError(
-          data.error || "Order not found. Please check your order number and phone number."
+          data.error || "Order not found. Please check your order number and email address."
         );
       }
     } catch (err) {
+      console.error("Track order error:", err);
       setError("Failed to track order. Please try again.");
     } finally {
       setLoading(false);
@@ -110,21 +111,20 @@ export default function TrackOrderClient() {
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-white/80 mb-2">
-                Phone Number *
+              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
+                Email Address *
               </label>
               <input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g., 9876543210"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g., your@email.com"
                 required
-                pattern="[0-9]{10}"
                 className="w-full px-4 py-3 rounded-lg bg-black/40 border border-white/20 text-white placeholder:text-white/40 focus:border-neon/50 focus:outline-none transition-colors"
               />
               <p className="text-xs text-white/50 mt-1">
-                Enter the phone number used while placing the order
+                Enter the email address used while placing the order
               </p>
             </div>
 
@@ -246,8 +246,8 @@ export default function TrackOrderClient() {
               <div className="mt-6 pt-6 border-t border-white/10">
                 <h3 className="text-sm font-semibold text-white/80 mb-4">Order Items</h3>
                 <div className="space-y-3">
-                  {order.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-sm">
+                  {order.items.map((item) => (
+                    <div key={`${item.name}-${item.qty}`} className="flex justify-between text-sm">
                       <span className="text-white/70">
                         {item.name} x {item.qty}
                       </span>
@@ -295,8 +295,7 @@ export default function TrackOrderClient() {
                 className="text-neon hover:underline"
               >
                 WhatsApp
-              </a>
-              .
+              </a>.
             </p>
           </div>
         )}
