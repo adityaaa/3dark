@@ -105,8 +105,14 @@ export default function CheckoutClient() {
         throw new Error(data.error || "Failed to create order");
       }
 
+      // Check if payment method was changed due to gateway issues
+      if (data.message && data.method === "cod" && paymentMethod === "razorpay") {
+        // Show message to user that order was converted to COD
+        alert(data.message);
+      }
+
       // Handle COD
-      if (paymentMethod === "cod") {
+      if (paymentMethod === "cod" || data.method === "cod") {
         clear();
         setStatus("done");
         router.push(`/order-success?orderNumber=${data.orderNumber}`);

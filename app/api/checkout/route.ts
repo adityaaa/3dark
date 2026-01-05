@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     });
     const productImageMap = Object.fromEntries(products.map(p => [p.id, p.image]));
 
-    // Send order confirmation email
+    // Send order confirmation email (optional - won't fail order if email fails)
     try {
       const orderEmailData = {
         orderNumber: order.orderNumber,
@@ -134,14 +134,24 @@ export async function POST(req: Request) {
         paymentMethod: order.paymentMethod,
         paymentStatus: order.paymentStatus,
       };
-      // Send to customer
-      await sendOrderConfirmationEmail(orderEmailData);
-      // Send to admin (custom format)
-      await sendAdminOrderNotificationEmail(orderEmailData);
-      console.log("✅ Order confirmation email sent to customer and admin");
+      
+      // Try to send emails, but don't fail if email service is unavailable
+      try {
+        await sendOrderConfirmationEmail(orderEmailData);
+        console.log("✅ Order confirmation email sent to customer");
+      } catch (emailError: any) {
+        console.error("❌ Email send error (customer):", emailError.message || emailError);
+      }
+      
+      try {
+        await sendAdminOrderNotificationEmail(orderEmailData);
+        console.log("✅ Admin notification email sent");
+      } catch (emailError: any) {
+        console.error("❌ Email send error (admin):", emailError.message || emailError);
+      }
     } catch (emailError) {
-      console.error("❌ Failed to send order confirmation email:", emailError);
-      // Don't fail the order if email fails
+      console.error("❌ Email preparation failed:", emailError);
+      // Continue with order creation even if email fails
     }
 
     // If COD, return success immediately
@@ -155,33 +165,81 @@ export async function POST(req: Request) {
     }
 
     // For Razorpay, create payment order
-    if (paymentMethod === "razorpay" && process.env.RAZORPAY_KEY_ID) {
-      const Razorpay = require("razorpay");
-      const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-      });
+    if (paymentMethod === "razorpay") {
+      // Check if Razorpay credentials are configured
+      if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        console.error("❌ Razorpay credentials not configured");
+        // Fall back to COD for this order
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { 
+            paymentMethod: "cod",
+            paymentStatus: "pending",
+            notes: order.notes 
+              ? `${order.notes}\n\nNote: Payment gateway unavailable, converted to COD`
+              : "Payment gateway unavailable, converted to COD"
+          },
+        });
+        
+        return NextResponse.json({
+          success: true,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          method: "cod",
+          message: "Payment gateway temporarily unavailable. Order converted to Cash on Delivery.",
+        });
+      }
 
-      const razorpayOrder = await razorpay.orders.create({
-        amount: total * 100, // Amount in paise
-        currency: "INR",
-        receipt: orderNumber,
-        notes: {
-          orderId: order.id.toString(),
-          orderNumber,
-        },
-      });
+      try {
+        const Razorpay = require("razorpay");
+        const razorpay = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
 
-      return NextResponse.json({
-        success: true,
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        method: "razorpay",
-        razorpayOrderId: razorpayOrder.id,
-        amount: total,
-        currency: "INR",
-        keyId: process.env.RAZORPAY_KEY_ID,
-      });
+        const razorpayOrder = await razorpay.orders.create({
+          amount: total * 100, // Amount in paise
+          currency: "INR",
+          receipt: orderNumber,
+          notes: {
+            orderId: order.id.toString(),
+            orderNumber,
+          },
+        });
+
+        return NextResponse.json({
+          success: true,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          method: "razorpay",
+          razorpayOrderId: razorpayOrder.id,
+          amount: total,
+          currency: "INR",
+          keyId: process.env.RAZORPAY_KEY_ID,
+        });
+      } catch (razorpayError: any) {
+        console.error("❌ Razorpay API error:", razorpayError);
+        
+        // Fall back to COD if Razorpay fails
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { 
+            paymentMethod: "cod",
+            paymentStatus: "pending",
+            notes: order.notes 
+              ? `${order.notes}\n\nNote: Payment gateway error, converted to COD`
+              : "Payment gateway error, converted to COD"
+          },
+        });
+        
+        return NextResponse.json({
+          success: true,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          method: "cod",
+          message: "Payment gateway error. Order converted to Cash on Delivery.",
+        });
+      }
     }
 
     // Fallback if no payment gateway configured
