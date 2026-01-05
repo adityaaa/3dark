@@ -67,7 +67,7 @@ export default function NavbarClient() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
+        <div className="hidden lg:flex items-center gap-6 text-sm">
           {navLinks.map((link) => (
             <Link 
               key={link.href} 
@@ -134,9 +134,9 @@ export default function NavbarClient() {
           </Link>
         </div>
 
-        {/* Mobile: Cart + Hamburger */}
-        <div className="flex md:hidden items-center gap-4 z-50">
-          {/* Cart - Mobile */}
+        {/* Mobile & Tablet: Cart + Hamburger */}
+        <div className="flex lg:hidden items-center gap-4 z-50">
+          {/* Cart - Mobile & Tablet */}
           <Link href="/cart" className="relative hover:text-neon transition-colors">
             <ShoppingCart className="w-6 h-6" />
             {itemCount > 0 && (
@@ -157,9 +157,9 @@ export default function NavbarClient() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile & Tablet Menu */}
       {showMobileMenu && (
-        <div className="md:hidden fixed inset-0 top-[57px] bg-bg backdrop-blur-xl z-40 border-t border-white/10 animate-in slide-in-from-top duration-200">
+        <div className="lg:hidden fixed inset-0 top-[57px] bg-bg backdrop-blur-xl z-40 border-t border-white/10 animate-in slide-in-from-top duration-200">
           <div className="flex flex-col px-4 py-6 space-y-1 overflow-y-auto max-h-[calc(100vh-57px)] bg-gradient-to-b from-bg via-bg-soft to-bg">
             {navLinks.map((link) => (
               <Link
