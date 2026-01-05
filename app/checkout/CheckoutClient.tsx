@@ -435,13 +435,6 @@ export default function CheckoutClient() {
         <button
           type="submit"
           form="checkout-form"
-          onClick={(e) => {
-            e.preventDefault();
-            const form = document.querySelector('form') as HTMLFormElement;
-            if (form) {
-              form.requestSubmit();
-            }
-          }}
           disabled={status === "processing"}
           className="w-full rounded-full bg-neon px-6 py-3.5 text-sm font-semibold text-black shadow-glow hover:brightness-95 disabled:opacity-60 transition min-h-[48px] touch-manipulation"
         >
