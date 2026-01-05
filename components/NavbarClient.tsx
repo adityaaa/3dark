@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, ShoppingCart, User } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Search as SearchIcon } from "lucide-react";
+import SearchBar from "@/components/SearchBar";
 
 export default function NavbarClient() {
   const cart = useCart();
@@ -13,6 +14,7 @@ export default function NavbarClient() {
   const itemCount = cart.items.reduce((s, i) => s + i.qty, 0);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
   const prevItemCount = useRef(itemCount);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,12 +80,17 @@ export default function NavbarClient() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-6 text-sm">
+        <div className="hidden lg:flex items-center gap-6 text-sm flex-1 max-w-4xl mx-8">
+          {/* Search Bar - Desktop */}
+          <div className="flex-1 max-w-md">
+            <SearchBar />
+          </div>
+          
           {navLinks.map((link) => (
             <Link 
               key={link.href} 
               href={link.href} 
-              className="hover:text-neon transition-colors"
+              className="hover:text-neon transition-colors whitespace-nowrap"
             >
               {link.label}
             </Link>
@@ -145,8 +152,17 @@ export default function NavbarClient() {
           </Link>
         </div>
 
-        {/* Mobile & Tablet: Cart + Hamburger */}
-        <div className="flex lg:hidden items-center gap-4 z-50">
+        {/* Mobile & Tablet: Search + Cart + Hamburger */}
+        <div className="flex lg:hidden items-center gap-3 z-50">
+          {/* Search Icon - Mobile & Tablet */}
+          <button
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="p-2 hover:text-neon transition-colors"
+            aria-label="Search"
+          >
+            <SearchIcon className="w-6 h-6" />
+          </button>
+          
           {/* Cart - Mobile & Tablet */}
           <Link href="/cart" className={`relative hover:text-neon transition-colors ${cartPulse ? 'animate-bounce' : ''}`}>
             <ShoppingCart className="w-6 h-6" />
@@ -167,6 +183,29 @@ export default function NavbarClient() {
           </button>
         </div>
       </nav>
+
+      {/* Mobile Search Overlay */}
+      {showMobileSearch && (
+        <div className="lg:hidden fixed inset-0 top-[57px] bg-bg/98 backdrop-blur-xl z-50 animate-in slide-in-from-top duration-200">
+          <div className="p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1">
+                <SearchBar />
+              </div>
+              <button
+                onClick={() => setShowMobileSearch(false)}
+                className="p-2 hover:text-neon transition-colors flex-shrink-0"
+                aria-label="Close search"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <p className="text-xs text-white/40 text-center">
+              Search for products, brands, or categories
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Mobile & Tablet Menu */}
       {showMobileMenu && (
