@@ -27,6 +27,18 @@ export default function NavbarClient() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMobileMenu) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileMenu]);
+
   const isCustomer = session?.user && (session.user as any).role === "customer";
 
   const navLinks = [
@@ -147,35 +159,37 @@ export default function NavbarClient() {
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className="md:hidden fixed inset-0 top-[57px] bg-bg/98 backdrop-blur-lg z-40 border-t border-white/10">
-          <div className="flex flex-col px-4 py-6 space-y-1">
+        <div className="md:hidden fixed inset-0 top-[57px] bg-bg/98 backdrop-blur-lg z-40 border-t border-white/10 animate-in slide-in-from-top duration-300">
+          <div className="flex flex-col px-4 py-6 space-y-1 overflow-y-auto max-h-[calc(100vh-57px)]">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-3 hover:bg-white/5 rounded-lg transition-colors text-base"
+                className="px-4 py-4 hover:bg-white/5 active:bg-white/10 rounded-lg transition-colors text-base font-medium min-h-[48px] flex items-center"
                 onClick={() => setShowMobileMenu(false)}
               >
                 {link.label}
               </Link>
             ))}
             
-            <div className="border-t border-white/10 my-2"></div>
+            <div className="border-t border-white/10 my-3"></div>
             
             {isCustomer ? (
               <>
                 <Link
                   href="/account"
-                  className="px-4 py-3 hover:bg-white/5 rounded-lg transition-colors text-base"
+                  className="px-4 py-4 hover:bg-white/5 active:bg-white/10 rounded-lg transition-colors text-base font-medium min-h-[48px] flex items-center"
                   onClick={() => setShowMobileMenu(false)}
                 >
+                  <User className="w-5 h-5 mr-2" />
                   My Orders
                 </Link>
                 <Link
                   href="/account"
-                  className="px-4 py-3 hover:bg-white/5 rounded-lg transition-colors text-base"
+                  className="px-4 py-4 hover:bg-white/5 active:bg-white/10 rounded-lg transition-colors text-base font-medium min-h-[48px] flex items-center"
                   onClick={() => setShowMobileMenu(false)}
                 >
+                  <User className="w-5 h-5 mr-2" />
                   Profile
                 </Link>
                 <button
@@ -183,7 +197,7 @@ export default function NavbarClient() {
                     setShowMobileMenu(false);
                     signOut({ callbackUrl: "/" });
                   }}
-                  className="w-full text-left px-4 py-3 hover:bg-white/5 rounded-lg transition-colors text-red-400 text-base"
+                  className="w-full text-left px-4 py-4 hover:bg-white/5 active:bg-white/10 rounded-lg transition-colors text-red-400 text-base font-medium min-h-[48px] flex items-center"
                 >
                   Logout
                 </button>
@@ -191,7 +205,7 @@ export default function NavbarClient() {
             ) : (
               <Link
                 href="/login"
-                className="px-4 py-3 hover:bg-white/5 rounded-lg transition-colors text-base"
+                className="px-4 py-4 bg-neon/10 hover:bg-neon/20 active:bg-neon/30 border border-neon/30 rounded-lg transition-colors text-neon text-base font-semibold min-h-[48px] flex items-center justify-center"
                 onClick={() => setShowMobileMenu(false)}
               >
                 Login

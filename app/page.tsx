@@ -46,17 +46,17 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,255,180,0.15),_transparent_60%),radial-gradient(circle_at_bottom_right,_rgba(255,0,180,0.12),_transparent_60%)]" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24">
-          <div className="flex flex-col gap-12 md:flex-row md:items-center md:gap-16">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24">
+          <div className="flex flex-col gap-8 sm:gap-12 md:flex-row md:items-center md:gap-16">
             {/* Left: Hero Text */}
-            <div className="flex-1 space-y-6">
-              <div className="inline-block rounded-full border border-neon/30 bg-neon/10 px-4 py-1.5">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-neon font-semibold">
+            <div className="flex-1 space-y-4 sm:space-y-6">
+              <div className="inline-block rounded-full border border-neon/30 bg-neon/10 px-3 py-1 sm:px-4 sm:py-1.5">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] text-neon font-semibold">
                   ⚡ India&apos;s First Glow Wildlife Collection
                 </p>
               </div>
               
-              <h1 className="text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
+              <h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
                 Wildlife That
                 <br />
                 <span className="bg-gradient-to-r from-neon via-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -66,70 +66,70 @@ export default async function HomePage() {
                 at Night
               </h1>
               
-              <p className="max-w-xl text-lg text-white/80 leading-relaxed">
+              <p className="max-w-xl text-base sm:text-lg text-white/80 leading-relaxed">
                 Premium <span className="text-neon font-semibold">glow-in-the-dark</span> apparel 
                 with hyper-realistic wildlife designs. Best-in-class glow technology meets 
                 bold animal prints. Tigers, leopards, pandas, eagles.
               </p>
 
-              <div className="flex flex-wrap gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2 sm:pt-4">
                 <Link
                   href="/shop"
-                  className="group relative overflow-hidden rounded-full bg-gradient-to-r from-neon to-blue-400 px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-neon/50 transition-all hover:shadow-xl hover:shadow-neon/70 hover:scale-105"
+                  className="group relative overflow-hidden rounded-full bg-gradient-to-r from-neon to-blue-400 px-6 py-3 sm:px-8 sm:py-3.5 text-sm font-bold text-black shadow-lg shadow-neon/50 transition-all hover:shadow-xl hover:shadow-neon/70 hover:scale-105 text-center min-h-[48px] flex items-center justify-center"
                 >
                   <span className="relative z-10">Shop Glow Collection</span>
                 </Link>
                 <Link
                   href="/lookbook"
-                  className="rounded-full border-2 border-white/30 px-8 py-3.5 text-sm font-semibold text-white/90 transition-all hover:border-neon hover:text-neon hover:bg-neon/5"
+                  className="rounded-full border-2 border-white/30 px-6 py-3 sm:px-8 sm:py-3.5 text-sm font-semibold text-white/90 transition-all hover:border-neon hover:text-neon hover:bg-neon/5 text-center min-h-[48px] flex items-center justify-center"
                 >
                   View Lookbook
                 </Link>
               </div>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-white/10">
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Zap className="h-4 w-4 text-neon" />
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-4 sm:pt-6 border-t border-white/10">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-white/70">
+                  <Zap className="h-4 w-4 text-neon flex-shrink-0" />
                   <span>Best Quality Glow</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Truck className="h-4 w-4 text-neon" />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-white/70">
+                  <Truck className="h-4 w-4 text-neon flex-shrink-0" />
                   <span>Fast Shipping</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Shield className="h-4 w-4 text-neon" />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-white/70">
+                  <Shield className="h-4 w-4 text-neon flex-shrink-0" />
                   <span>Secure Checkout</span>
                 </div>
               </div>
             </div>
 
             {/* Right: Hero Visual - Before/After Split */}
-            <div className="flex-1">
+            <div className="flex-1 mt-6 md:mt-0">
               <div className="relative">
                 {/* Main Image Container */}
-                <div className="relative aspect-square max-w-md mx-auto overflow-hidden rounded-3xl border-2 border-neon/40 bg-gradient-to-br from-black via-purple-900/20 to-neon/10 shadow-2xl shadow-neon/30">
+                <div className="relative aspect-square max-w-md mx-auto overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-neon/40 bg-gradient-to-br from-black via-purple-900/20 to-neon/10 shadow-2xl shadow-neon/30">
                   {/* Placeholder for hero image - will replace with actual product */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(0,255,180,0.3),transparent_50%),radial-gradient(circle_at_70%_70%,rgba(255,0,180,0.25),transparent_50%)]" />
                   
                   {/* Day/Night Split Effect */}
                   <div className="relative h-full flex items-center justify-center">
-                    <div className="text-center space-y-4 p-8">
-                      <div className="inline-block rounded-2xl border border-neon/50 bg-black/80 backdrop-blur-sm px-6 py-3">
-                        <p className="text-xs uppercase tracking-[0.25em] text-neon font-bold">
+                    <div className="text-center space-y-3 sm:space-y-4 p-6 sm:p-8">
+                      <div className="inline-block rounded-xl sm:rounded-2xl border border-neon/50 bg-black/80 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3">
+                        <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-neon font-bold">
                           Charge in Light
                         </p>
                       </div>
                       
-                      <div className="text-6xl">🐯</div>
+                      <div className="text-5xl sm:text-6xl">🐯</div>
                       
-                      <div className="inline-block rounded-2xl border border-purple-500/50 bg-black/80 backdrop-blur-sm px-6 py-3">
-                        <p className="text-xs uppercase tracking-[0.25em] text-purple-400 font-bold">
+                      <div className="inline-block rounded-xl sm:rounded-2xl border border-purple-500/50 bg-black/80 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3">
+                        <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-purple-400 font-bold">
                           Glow in Dark
                         </p>
                       </div>
                       
-                      <p className="text-sm text-white/70 max-w-xs mx-auto">
+                      <p className="text-xs sm:text-sm text-white/70 max-w-xs mx-auto">
                         Charges in 10-15 minutes. Glows for hours. Perfect for concerts, 
                         parties, and night adventures.
                       </p>
@@ -138,14 +138,14 @@ export default async function HomePage() {
                 </div>
 
                 {/* Floating Stats */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
-                  <div className="rounded-xl border border-white/10 bg-black/90 backdrop-blur-sm px-6 py-3 shadow-xl">
-                    <p className="text-2xl font-bold text-neon">{avgRating._avg.rating?.toFixed(1) || "4.8"}</p>
-                    <p className="text-[10px] text-white/60 uppercase tracking-wider">Rating</p>
+                <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-4">
+                  <div className="rounded-lg sm:rounded-xl border border-white/10 bg-black/90 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3 shadow-xl">
+                    <p className="text-xl sm:text-2xl font-bold text-neon">{avgRating._avg.rating?.toFixed(1) || "4.8"}</p>
+                    <p className="text-[9px] sm:text-[10px] text-white/60 uppercase tracking-wider">Rating</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-black/90 backdrop-blur-sm px-6 py-3 shadow-xl">
-                    <p className="text-2xl font-bold text-neon">100%</p>
-                    <p className="text-[10px] text-white/60 uppercase tracking-wider">Glow Quality</p>
+                  <div className="rounded-lg sm:rounded-xl border border-white/10 bg-black/90 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3 shadow-xl">
+                    <p className="text-xl sm:text-2xl font-bold text-neon">100%</p>
+                    <p className="text-[9px] sm:text-[10px] text-white/60 uppercase tracking-wider">Glow Quality</p>
                   </div>
                 </div>
               </div>
