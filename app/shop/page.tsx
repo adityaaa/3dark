@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { mapProduct, applyBrandPricing, getLowestPrice } from "@/lib/utils";
 import ShopProductCard from "@/components/ShopProductCard";
+import FilterDrawer from "@/components/FilterDrawer";
 
 export const dynamic = 'force-dynamic';
 
@@ -68,23 +69,87 @@ export default async function ShopPage({
     return applyBrandPricing(product, brandPricing || null);
   });
 
+  // Get unique categories and brands for filters
+  const allProducts = await prisma.product.findMany();
+  const categories = Array.from(new Set(allProducts.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
+  const brandsSet = Array.from(new Set(allProducts.map((p) => p.brand))).sort((a, b) => a.localeCompare(b));
+  
+  // Get price range
+  const prices = allProducts.map((p) => p.price);
+  const minPriceValue = Math.min(...prices);
+  const maxPriceValue = Math.max(...prices);
+
+  // Determine product count text
+  const productCountText = search 
+    ? `Found ${products.length} ${products.length === 1 ? "product" : "products"}`
+    : "Glow-in-the-dark tees, imported and curated.";
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold">
             {search ? `Search: "${search}"` : "Shop"}
           </h1>
-          {search && (
-            <p className="text-sm text-white/60 mt-1">
-              Found {products.length} {products.length === 1 ? "product" : "products"}
-            </p>
-          )}
+          <p className="text-sm text-white/60 mt-1">
+            {productCountText}
+          </p>
         </div>
-        <p className="text-xs md:text-sm text-white/60">
-          Glow-in-the-dark tees, imported and curated.
-        </p>
+        
+        {/* Filter Button */}
+        <FilterDrawer
+          categories={categories}
+          brands={brandsSet}
+          minPrice={minPriceValue}
+          maxPrice={maxPriceValue}
+        />
       </div>
+
+      {/* Active Filters Display */}
+      {(category || brand || minPrice || maxPrice || sortBy) && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="text-xs text-white/60">Active filters:</span>
+          {category && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neon/20 border border-neon/40 text-xs text-neon">
+              {category}
+              <a
+                href={`/shop?${new URLSearchParams({ ...searchParams, category: "" }).toString().replace("category=&", "").replace("category=", "")}`}
+                className="hover:text-white"
+              >
+                ×
+              </a>
+            </span>
+          )}
+          {brand && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neon/20 border border-neon/40 text-xs text-neon">
+              {brand}
+              <a
+                href={`/shop?${new URLSearchParams({ ...searchParams, brand: "" }).toString().replace("brand=&", "").replace("brand=", "")}`}
+                className="hover:text-white"
+              >
+                ×
+              </a>
+            </span>
+          )}
+          {(minPrice || maxPrice) && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neon/20 border border-neon/40 text-xs text-neon">
+              ₹{minPrice || minPriceValue} - ₹{maxPrice || maxPriceValue}
+              <a
+                href={`/shop?${new URLSearchParams({ ...searchParams, minPrice: "", maxPrice: "" }).toString().replaceAll(/minPrice=&|maxPrice=&|minPrice=|maxPrice=/g, "")}`}
+                className="hover:text-white"
+              >
+                ×
+              </a>
+            </span>
+          )}
+          <a
+            href="/shop"
+            className="text-xs text-white/60 hover:text-neon transition-colors underline"
+          >
+            Clear all
+          </a>
+        </div>
+      )}
 
       {products.length === 0 ? (
         <div className="text-center py-16">
