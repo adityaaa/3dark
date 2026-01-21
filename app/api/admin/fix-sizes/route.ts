@@ -62,8 +62,11 @@ export async function POST() {
         ageGroup: 'adult',
         category: 'tshirt',
         OR: [
-          { brand: { contains: 'RC', mode: 'insensitive' } },
-          { brand: { contains: 'RockChang', mode: 'insensitive' } }
+          // { brand: { contains: 'RC', mode: 'insensitive' } },
+          // { brand: { contains: 'RockChang', mode: 'insensitive' } }
+          // TEMPORARY FIX: 'mode' is not supported here in some Prisma versions. Use case-sensitive for now.
+          { brand: { contains: 'RC' } },
+          { brand: { contains: 'RockChang' } }
         ]
       }
     });
@@ -85,7 +88,7 @@ export async function POST() {
     const caballoBottoms = await prisma.product.findMany({
       where: {
         ageGroup: 'adult',
-        brand: { contains: 'Caballo', mode: 'insensitive' },
+        brand: { contains: 'Caballo', /* mode: 'insensitive' */ }, // TEMPORARY FIX: 'mode' is not supported here
         OR: [
           { category: 'shorts' },
           { category: 'pants' }

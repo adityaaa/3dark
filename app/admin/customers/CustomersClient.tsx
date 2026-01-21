@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
+import CustomerCard from "@/components/admin/CustomerCard";
 
 type Order = {
   id: number;
@@ -59,6 +61,113 @@ export default function CustomersClient({ customers }: { customers: Customer[] }
   const totalCustomers = customers.length;
   const totalRevenue = customers.reduce((sum, c) => sum + c.totalSpent, 0);
   const avgOrderValue = totalRevenue / customers.reduce((sum, c) => sum + c._count.orders, 0) || 0;
+
+  // Desktop table
+  const desktopTable = (
+    <div className="bg-gray-900 rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-800 border-b border-gray-700">
+            <tr>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
+                Customer
+              </th>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
+                Contact
+              </th>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
+                Location
+              </th>
+              <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
+                Orders
+              </th>
+              <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
+                Reviews
+              </th>
+              <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
+                Total Spent
+              </th>
+              <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
+                Joined
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-800">
+            {sortedCustomers.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  {searchTerm ? "No customers found matching your search" : "No customers yet"}
+                </td>
+              </tr>
+            ) : (
+              sortedCustomers.map((customer) => (
+                <tr
+                  key={customer.id}
+                  className="hover:bg-gray-800/50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/admin/customers/${customer.id}`)}
+                >
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="font-medium">{customer.name}</p>
+                      <p className="text-sm text-gray-400">{customer.email}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm">{customer.phone || "-"}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    {customer.city && customer.state ? (
+                      <div className="text-sm">
+                        <p>{customer.city}</p>
+                        <p className="text-gray-400">{customer.state}</p>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">-</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-sm bg-blue-900/30 text-blue-400 border border-blue-600/30">
+                      {customer._count.orders}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-sm bg-yellow-900/30 text-yellow-400 border border-yellow-600/30">
+                      {customer._count.reviews}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <p className="font-semibold text-green-400">
+                      ₹{customer.totalSpent.toLocaleString()}
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-400">
+                      {new Date(customer.createdAt).toLocaleDateString()}
+                    </p>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  // Mobile cards
+  const mobileCards = (
+    <>
+      {sortedCustomers.length === 0 ? (
+        <div className="bg-gray-900 rounded-lg p-8 text-center text-gray-400">
+          {searchTerm ? "No customers found matching your search" : "No customers yet"}
+        </div>
+      ) : (
+        sortedCustomers.map((customer) => (
+          <CustomerCard key={customer.id} customer={customer} />
+        ))
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -131,95 +240,8 @@ export default function CustomersClient({ customers }: { customers: Customer[] }
           </div>
         </div>
 
-        {/* Customers Table */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-800 border-b border-gray-700">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
-                    Customer
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
-                    Contact
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
-                    Location
-                  </th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
-                    Orders
-                  </th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
-                    Reviews
-                  </th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-gray-300">
-                    Total Spent
-                  </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-300">
-                    Joined
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {sortedCustomers.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
-                      {searchTerm ? "No customers found matching your search" : "No customers yet"}
-                    </td>
-                  </tr>
-                ) : (
-                  sortedCustomers.map((customer) => (
-                    <tr
-                      key={customer.id}
-                      className="hover:bg-gray-800/50 transition-colors cursor-pointer"
-                      onClick={() => router.push(`/admin/customers/${customer.id}`)}
-                    >
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="font-medium">{customer.name}</p>
-                          <p className="text-sm text-gray-400">{customer.email}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm">{customer.phone || "-"}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        {customer.city && customer.state ? (
-                          <div className="text-sm">
-                            <p>{customer.city}</p>
-                            <p className="text-gray-400">{customer.state}</p>
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="inline-flex items-center px-2 py-1 rounded text-sm bg-blue-900/30 text-blue-400 border border-blue-600/30">
-                          {customer._count.orders}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="inline-flex items-center px-2 py-1 rounded text-sm bg-yellow-900/30 text-yellow-400 border border-yellow-600/30">
-                          {customer._count.reviews}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <p className="font-semibold text-green-400">
-                          ₹{customer.totalSpent.toLocaleString()}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-gray-400">
-                          {new Date(customer.createdAt).toLocaleDateString()}
-                        </p>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* Responsive Table */}
+        <ResponsiveTable desktopTable={desktopTable} mobileCards={mobileCards} />
 
         {/* Summary */}
         <div className="mt-6 text-center text-gray-400 text-sm">

@@ -13,6 +13,8 @@ tsconfig.tsbuildinfo
 .env
 .env.local
 .env.*.local
+.env.production
+.env*
 
 # Prisma local DB
 dev.db

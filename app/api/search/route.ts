@@ -24,25 +24,25 @@ export async function GET(request: Request) {
           {
             name: {
               contains: searchTerm,
-              mode: "insensitive",
+              // mode: "insensitive", // TEMPORARY FIX: 'mode' not supported in this Prisma version
             },
           },
           {
             description: {
               contains: searchTerm,
-              mode: "insensitive",
+              // mode: "insensitive", // TEMPORARY FIX
             },
           },
           {
             brand: {
               contains: searchTerm,
-              mode: "insensitive",
+              // mode: "insensitive", // TEMPORARY FIX
             },
           },
           {
             category: {
               contains: searchTerm,
-              mode: "insensitive",
+              // mode: "insensitive", // TEMPORARY FIX
             },
           },
         ],

@@ -46,8 +46,11 @@ async function main() {
       ageGroup: 'adult',
       category: 'tshirt',
       OR: [
-        { brand: { contains: 'RC', mode: 'insensitive' } },
-        { brand: { contains: 'RockChang', mode: 'insensitive' } }
+        // { brand: { contains: 'RC', mode: 'insensitive' } },
+        // { brand: { contains: 'RockChang', mode: 'insensitive' } }
+        // TEMPORARY FIX: 'mode' is not supported here in some Prisma versions. Use case-sensitive for now.
+        { brand: { contains: 'RC' } },
+        { brand: { contains: 'RockChang' } }
       ]
     }
   });
@@ -74,7 +77,7 @@ async function main() {
   const caballoBottoms = await prisma.product.findMany({
     where: {
       ageGroup: 'adult',
-      brand: { contains: 'Caballo', mode: 'insensitive' },
+      brand: { contains: 'Caballo' /*, mode: 'insensitive' */ }, // TEMPORARY FIX
       OR: [
         { category: 'shorts' },
         { category: 'pants' }
@@ -107,15 +110,17 @@ async function main() {
       ageGroup: 'adult', 
       category: 'tshirt',
       OR: [
-        { brand: { contains: 'RC', mode: 'insensitive' } },
-        { brand: { contains: 'RockChang', mode: 'insensitive' } }
+        // { brand: { contains: 'RC', mode: 'insensitive' } },
+        // { brand: { contains: 'RockChang', mode: 'insensitive' } }
+        { brand: { contains: 'RC' } },
+        { brand: { contains: 'RockChang' } }
       ]
     } 
   });
   const totalCaballoBottoms = await prisma.product.count({
     where: {
       ageGroup: 'adult',
-      brand: { contains: 'Caballo', mode: 'insensitive' },
+      brand: { contains: 'Caballo' /*, mode: 'insensitive' */ }, // TEMPORARY FIX
       OR: [{ category: 'shorts' }, { category: 'pants' }]
     }
   });

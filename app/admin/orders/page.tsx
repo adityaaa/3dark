@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { formatDistance } from "date-fns";
+import ResponsiveTable from "@/components/admin/ResponsiveTable";
+import OrderCard from "@/components/admin/OrderCard";
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +28,123 @@ export default async function AdminOrdersPage() {
   const totalRevenue = orders
     .filter((o) => o.paymentStatus === "paid")
     .reduce((sum, o) => sum + o.total, 0);
+
+  // Desktop table (existing)
+  const desktopTable = (
+    <div className="bg-gray-900 rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-800 border-b border-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Order #</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Items</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Total</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Payment</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-800">
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
+                  No orders yet
+                </td>
+              </tr>
+            ) : (
+              orders.map((order) => {
+                // Extract payment status class
+                let paymentStatusClass = "bg-red-900/30 text-red-400 border border-red-600/30";
+                if (order.paymentStatus === "paid") {
+                  paymentStatusClass = "bg-green-900/30 text-green-400 border border-green-600/30";
+                } else if (order.paymentStatus === "pending") {
+                  paymentStatusClass = "bg-yellow-900/30 text-yellow-400 border border-yellow-600/30";
+                }
+                // Extract order status class
+                let orderStatusClass = "bg-yellow-900/30 text-yellow-400 border border-yellow-600/30";
+                if (order.orderStatus === "delivered") {
+                  orderStatusClass = "bg-green-900/30 text-green-400 border border-green-600/30";
+                } else if (order.orderStatus === "shipped") {
+                  orderStatusClass = "bg-purple-900/30 text-purple-400 border-purple-600/30";
+                } else if (order.orderStatus === "processing") {
+                  orderStatusClass = "bg-blue-900/30 text-blue-400 border-blue-600/30";
+                } else if (order.orderStatus === "cancelled") {
+                  orderStatusClass = "bg-red-900/30 text-red-400 border-red-600/30";
+                }
+                return (
+                  <tr key={order.id} className="hover:bg-gray-800/50 transition-colors">
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-sm">{order.orderNumber}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div>
+                        <p className="font-medium">{order.customerName}</p>
+                        <p className="text-sm text-gray-400">{order.customerEmail}</p>
+                        <p className="text-sm text-gray-400">{order.customerPhone}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm">{order.items.length} item(s)</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">₹{order.total}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm capitalize">{order.paymentMethod}</span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium w-fit ${paymentStatusClass}`}
+                        >
+                          {order.paymentStatus}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${orderStatusClass}`}
+                      >
+                        {order.orderStatus}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-400">
+                      {formatDistance(new Date(order.createdAt), new Date(), {
+                        addSuffix: true,
+                      })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+                      >
+                        View Details
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  // Mobile cards
+  const mobileCards = (
+    <>
+      {orders.length === 0 ? (
+        <div className="bg-gray-900 rounded-lg p-8 text-center text-gray-400">
+          No orders yet
+        </div>
+      ) : (
+        orders.map((order) => (
+          <OrderCard key={order.id} order={order} />
+        ))
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -68,101 +187,8 @@ export default async function AdminOrdersPage() {
           </div>
         </div>
 
-        {/* Orders Table */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-800 border-b border-gray-700">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Order #</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Items</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Total</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Payment</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {orders.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                      No orders yet
-                    </td>
-                  </tr>
-                ) : (
-                  orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-800/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm">{order.orderNumber}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="font-medium">{order.customerName}</p>
-                          <p className="text-sm text-gray-400">{order.customerEmail}</p>
-                          <p className="text-sm text-gray-400">{order.customerPhone}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm">{order.items.length} item(s)</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="font-semibold">₹{order.total}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-sm capitalize">{order.paymentMethod}</span>
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium w-fit ${
-                              order.paymentStatus === "paid"
-                                ? "bg-green-900/30 text-green-400 border border-green-600/30"
-                                : order.paymentStatus === "pending"
-                                ? "bg-yellow-900/30 text-yellow-400 border border-yellow-600/30"
-                                : "bg-red-900/30 text-red-400 border border-red-600/30"
-                            }`}
-                          >
-                            {order.paymentStatus}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                            order.orderStatus === "delivered"
-                              ? "bg-green-900/30 text-green-400 border border-green-600/30"
-                              : order.orderStatus === "shipped"
-                              ? "bg-purple-900/30 text-purple-400 border border-purple-600/30"
-                              : order.orderStatus === "processing"
-                              ? "bg-blue-900/30 text-blue-400 border border-blue-600/30"
-                              : order.orderStatus === "cancelled"
-                              ? "bg-red-900/30 text-red-400 border border-red-600/30"
-                              : "bg-yellow-900/30 text-yellow-400 border border-yellow-600/30"
-                          }`}
-                        >
-                          {order.orderStatus}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-400">
-                        {formatDistance(new Date(order.createdAt), new Date(), {
-                          addSuffix: true,
-                        })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/admin/orders/${order.id}`}
-                          className="text-blue-400 hover:text-blue-300 text-sm font-medium"
-                        >
-                          View Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* Responsive Table */}
+        <ResponsiveTable desktopTable={desktopTable} mobileCards={mobileCards} />
       </div>
     </div>
   );

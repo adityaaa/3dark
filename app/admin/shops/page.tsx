@@ -24,6 +24,9 @@ export default function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -106,6 +109,91 @@ export default function ShopsPage() {
     }
   };
 
+  const handleEdit = (shop: Shop) => {
+    setSelectedShop(shop);
+    setFormData({
+      name: shop.name,
+      location: shop.location,
+      address: shop.address || "",
+      contact: shop.contact,
+      whatsapp: shop.whatsapp || "",
+      email: shop.email || "",
+      ownerName: shop.ownerName || "",
+      notes: shop.notes || "",
+    });
+    setShowEditModal(true);
+  };
+
+  const handleViewDetails = (shop: Shop) => {
+    setSelectedShop(shop);
+    setShowDetailsModal(true);
+  };
+
+  const handleUpdateShop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedShop) return;
+
+    setSubmitting(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch(`/api/admin/shops/${selectedShop.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccess("Shop updated successfully!");
+        setShowEditModal(false);
+        setSelectedShop(null);
+        setFormData({
+          name: "",
+          location: "",
+          address: "",
+          contact: "",
+          whatsapp: "",
+          email: "",
+          ownerName: "",
+          notes: "",
+        });
+        fetchShops(); // Refresh list
+      } else {
+        setError(data.error || "Failed to update shop");
+      }
+    } catch (err) {
+      console.error("Error updating shop:", err);
+      setError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleToggleStatus = async (shop: Shop) => {
+    try {
+      const res = await fetch(`/api/admin/shops/${shop.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !shop.isActive }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccess(`Shop ${!shop.isActive ? "activated" : "deactivated"} successfully!`);
+        fetchShops(); // Refresh list
+      } else {
+        setError(data.error || "Failed to update shop status");
+      }
+    } catch (err) {
+      console.error("Error updating shop status:", err);
+      setError("Network error. Please try again.");
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -167,7 +255,7 @@ export default function ShopsPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., Delhi Fashion Hub"
                 />
               </div>
@@ -182,7 +270,7 @@ export default function ShopsPage() {
                   required
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., Lajpat Nagar, Delhi"
                 />
               </div>
@@ -197,7 +285,7 @@ export default function ShopsPage() {
                   required
                   value={formData.contact}
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., +91 9999999999"
                 />
               </div>
@@ -211,7 +299,7 @@ export default function ShopsPage() {
                   type="tel"
                   value={formData.whatsapp}
                   onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., +91 9999999999"
                 />
               </div>
@@ -225,7 +313,7 @@ export default function ShopsPage() {
                   type="text"
                   value={formData.ownerName}
                   onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., Rajesh Kumar"
                 />
               </div>
@@ -239,7 +327,7 @@ export default function ShopsPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="e.g., shop@example.com"
                 />
               </div>
@@ -253,7 +341,7 @@ export default function ShopsPage() {
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="Full street address..."
                 />
               </div>
@@ -267,7 +355,7 @@ export default function ShopsPage() {
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
                   placeholder="Any special notes about this shop..."
                 />
               </div>
@@ -385,10 +473,16 @@ export default function ShopsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <button className="text-orange-600 hover:text-orange-900 mr-3">
+                        <button
+                          onClick={() => handleEdit(shop)}
+                          className="text-orange-600 hover:text-orange-900 mr-3"
+                        >
                           Edit
                         </button>
-                        <button className="text-gray-600 hover:text-gray-900">
+                        <button
+                          onClick={() => handleViewDetails(shop)}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
                           View Details
                         </button>
                       </td>
@@ -399,6 +493,286 @@ export default function ShopsPage() {
             </div>
           )}
         </div>
+
+        {/* Edit Modal */}
+        {showEditModal && selectedShop && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Edit Shop</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setSelectedShop(null);
+                    setFormData({
+                      name: "",
+                      location: "",
+                      address: "",
+                      contact: "",
+                      whatsapp: "",
+                      email: "",
+                      ownerName: "",
+                      notes: "",
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateShop} className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Shop Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Location <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.contact}
+                      onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      WhatsApp Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Owner Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.ownerName}
+                      onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Address
+                    </label>
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Notes
+                    </label>
+                    <textarea
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? "Updating..." : "Update Shop"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleStatus(selectedShop)}
+                    className={`px-4 py-2 rounded-lg transition ${
+                      selectedShop.isActive
+                        ? "bg-red-100 text-red-700 hover:bg-red-200"
+                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                    }`}
+                  >
+                    {selectedShop.isActive ? "Deactivate" : "Activate"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* View Details Modal */}
+        {showDetailsModal && selectedShop && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Shop Details</h2>
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    setSelectedShop(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-4 border-b">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{selectedShop.name}</h3>
+                      <p className="text-sm text-gray-500">{selectedShop.location}</p>
+                    </div>
+                    <span
+                      className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
+                        selectedShop.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {selectedShop.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Contact Number</label>
+                      <p className="mt-1 text-sm text-gray-900">{selectedShop.contact}</p>
+                    </div>
+
+                    {selectedShop.whatsapp && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">WhatsApp</label>
+                        <p className="mt-1 text-sm">
+                          <a
+                            href={`https://wa.me/${selectedShop.whatsapp.replaceAll(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            {selectedShop.whatsapp} →
+                          </a>
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedShop.ownerName && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Owner Name</label>
+                        <p className="mt-1 text-sm text-gray-900">{selectedShop.ownerName}</p>
+                      </div>
+                    )}
+
+                    {selectedShop.email && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Email</label>
+                        <p className="mt-1 text-sm text-gray-900">{selectedShop.email}</p>
+                      </div>
+                    )}
+
+                    {selectedShop.address && (
+                      <div className="md:col-span-2">
+                        <label className="text-sm font-medium text-gray-500">Full Address</label>
+                        <p className="mt-1 text-sm text-gray-900">{selectedShop.address}</p>
+                      </div>
+                    )}
+
+                    {selectedShop.notes && (
+                      <div className="md:col-span-2">
+                        <label className="text-sm font-medium text-gray-500">Notes</label>
+                        <p className="mt-1 text-sm text-gray-900">{selectedShop.notes}</p>
+                      </div>
+                    )}
+
+                    <div className="md:col-span-2">
+                      <label className="text-sm font-medium text-gray-500">Created At</label>
+                      <p className="mt-1 text-sm text-gray-900">
+                        {new Date(selectedShop.createdAt).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowDetailsModal(false);
+                        handleEdit(selectedShop);
+                      }}
+                      className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition"
+                    >
+                      Edit Shop
+                    </button>
+                    <button
+                      onClick={() => setShowDetailsModal(false)}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

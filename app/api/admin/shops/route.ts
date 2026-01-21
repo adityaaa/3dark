@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
     }
 
     const shops = await prisma.shop.findMany({
-      where: { isActive: true },
       orderBy: { name: "asc" },
     });
 
