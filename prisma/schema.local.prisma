@@ -9,3 +9,256 @@ datasource db {
 
 // ...existing code...
 // Copy the rest of your schema.prisma here (models, etc.)
+model Product {
+  id          Int         @id @default(autoincrement())
+  slug        String      @unique
+  name        String
+  brand       String
+  category    String      @default("tshirt") // "tshirt", "shorts", "pants", "beanie-hat"
+  ageGroup    String      @default("adult")  // "adult", "kids"
+  description String
+  price       Int         // base price (fallback if no size-specific pricing)
+  mrp         Int         // base MRP (fallback)
+  tags        String      // comma-separated tags
+  sizes       String      // comma-separated sizes
+  sizePricing String?     // JSON: {"S": {"price": 499, "mrp": 599}, "M": {...}}
+  // INVENTORY MANAGEMENT
+  stockBySizes String?    // JSON: {"S": 10, "M": 15, "L": 20, "XL": 8, "XXL": 5}
+  totalStock   Int        @default(0) // Total stock across all sizes
+  lowStockThreshold Int   @default(5) // Alert when stock falls below this
+  trackInventory Boolean  @default(true) // Enable/disable inventory tracking
+  // END INVENTORY MANAGEMENT
+  image       String      // primary image path
+  gallery     String?     // comma-separated extra image paths
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+  reviews     Review[]    // Product reviews
+  inventoryTransactions InventoryTransaction[] // Stock movement history
+  shopInventory ShopInventory[] // Track which shops have this product
+}
+
+model Brand {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BrandPricing {
+  id          Int      @id @default(autoincrement())
+  brand       String
+  category    String   // "tshirt", "pants", "hat" - category-specific pricing
+  ageGroup    String   // "adult", "kids" - age-specific pricing
+  sizePricing String   // JSON: {"S": {"price": 499, "mrp": 599}, "M": {...}}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([brand, category, ageGroup]) // One pricing per brand+category+ageGroup combo
+}
+
+model Order {
+  id                 Int         @id @default(autoincrement())
+  orderNumber        String      @unique
+  customerId         Int?        // Null for guest orders
+  customer           Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName       String
+  customerEmail      String
+  customerPhone      String
+  shippingAddress    String
+  city               String
+  state              String
+  pincode            String
+  subtotal           Int
+  shipping           Int
+  total              Int
+  paymentMethod      String      // "razorpay", "cod"
+  paymentStatus      String      @default("pending") // "pending", "paid", "failed"
+  orderStatus        String      @default("pending_payment") // See OrderStatus enum
+  notes              String?
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  // ON-DEMAND SOURCING FIELDS
+  shopNotes          String?     // Admin notes about shop coordination
+  trackingNumber     String?     // Shipping tracking number
+  trackingUrl        String?     // Shipping tracking URL
+  refundReason       String?     // Why order was refunded
+  refundedAt         DateTime?   // When refund was processed
+  confirmedAt        DateTime?   // When admin confirmed availability
+  sourcedAt          DateTime?   // When items received from shop
+  packedAt           DateTime?   // When order was packed
+  shippedAt          DateTime?   // When order was shipped
+  deliveredAt        DateTime?   // When order was delivered
+  // END ON-DEMAND SOURCING FIELDS
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  items              OrderItem[]
+  reviews            Review[]    // Reviews from this order
+  orderSource        OrderSource? // Track which shop fulfilled this order
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  name      String   // Store product name at time of order
+  size      String
+  quantity  Int
+  price     Int      // Store price at time of order
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // hashed password
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password        String   // hashed password
+  name            String
+  phone           String?
+  // Default shipping address (users can override at checkout)
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  orders          Order[]  // All orders linked to this customer
+  reviews         Review[] // Customer reviews
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId  Int?     // Null for fake/seed reviews
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderId     Int?     // Only set for verified purchases
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  rating      Int      // 1-5 stars
+  title       String?  // Optional review title
+  comment     String   // Review text
+  isVerified  Boolean  @default(false) // True if from actual purchase
+  isFake      Boolean  @default(false) // True for seed/fake reviews
+  customerName String  // Display name (for fake reviews or override)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([customerId])
+}
+
+// Track all inventory movements for audit trail
+model InventoryTransaction {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        String   // "sale", "restock", "adjustment", "return", "damage"
+  size        String   // Which size was affected
+  quantity    Int      // Positive for additions, negative for reductions
+  previousStock Int    // Stock before transaction
+  newStock    Int      // Stock after transaction
+  orderId     Int?     // If related to an order
+  notes       String?  // Admin notes
+  createdBy   String   @default("system") // "system" or admin email
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+// SHOP NETWORK - Track partner souvenir shops
+model Shop {
+  id          Int      @id @default(autoincrement())
+  name        String
+  location    String   // e.g., "Connaught Place", "Chandni Chowk"
+  address     String?  // Full address
+  contact     String   // Phone number
+  whatsapp    String?  // WhatsApp number (if different)
+  email       String?  // Email contact
+  ownerName   String?  // Shop owner name
+  isActive    Boolean  @default(true) // Can be disabled if shop partnership ends
+  notes       String?  // Admin notes about the shop
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  inventory   ShopInventory[] // What items this shop has
+  orderSources OrderSource[]   // Orders fulfilled by this shop
+  performance ShopPerformance[] // Performance metrics
+}
+
+// Track what inventory each shop has
+model ShopInventory {
+  id          Int      @id @default(autoincrement())
+  shopId      Int
+  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size        String   // e.g., "S", "M", "L", "Free Size"
+  quantity    Int      // How many units this shop has
+  lastUpdated DateTime @default(now())
+  updatedBy   String   @default("admin") // Which admin updated this
+  notes       String?  // Any notes about this inventory
+  
+  @@unique([shopId, productId, size]) // One entry per shop-product-size combo
+  @@index([productId])
+  @@index([shopId])
+}
+
+// Track which shop fulfilled which order
+model OrderSource {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shopId    Int
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  notes     String?  // e.g., "Called at 2pm, confirmed available"
+  sourcedAt DateTime @default(now())
+  
+  @@index([shopId])
+  @@index([orderId])
+}
+
+// Track shop performance metrics
+model ShopPerformance {
+  id                Int      @id @default(autoincrement())
+  shopId            Int
+  shop              Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  totalOrders       Int      @default(0)
+  successfulOrders  Int      @default(0)
+  failedOrders      Int      @default(0)
+  avgResponseTime   Float?   // Average response time in hours
+  lastOrderDate     DateTime?
+  month             Int      // 1-12
+  year              Int      // e.g., 2025
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([shopId, month, year]) // One record per shop per month
+  @@index([shopId])
+}
+
+// "Notify me when available" - Customer waitlist for out-of-stock items
+model ProductNotification {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  size        String   // Which size they want
+  email       String   // Customer email
+  phone       String?  // Customer phone (optional)
+  notified    Boolean  @default(false) // Has customer been notified?
+  notifiedAt  DateTime? // When were they notified?
+  createdAt   DateTime @default(now())
+  
+  @@index([productId, size, notified]) // Quick lookup for un-notified customers
+  @@index([email])
+}

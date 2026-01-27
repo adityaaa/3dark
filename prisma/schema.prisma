@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ...existing code...
+// Copy the rest of your schema.prisma here (models, etc.)
 model Product {
   id          Int         @id @default(autoincrement())
   slug        String      @unique

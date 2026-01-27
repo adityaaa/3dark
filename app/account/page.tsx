@@ -33,6 +33,17 @@ export default async function AccountPage() {
           createdAt: "desc",
         },
       },
+      reviews: {
+        select: {
+          id: true,
+          orderId: true,
+          productId: true,
+          rating: true,
+          title: true,
+          comment: true,
+          createdAt: true,
+        },
+      },
     },
   });
 

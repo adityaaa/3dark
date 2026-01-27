@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { sendOrderConfirmationEmail } from "@/lib/email";
+import {
+  sendOrderConfirmationEmail,
+  sendOrderStatusEmail,
+  sendReviewRequestEmail,
+} from "@/lib/email";
 
 // PATCH /api/admin/orders/[id]/status - Update order status
 export async function PATCH(
@@ -38,6 +42,10 @@ export async function PATCH(
     const updateData: any = {
       orderStatus,
     };
+
+    if (order.paymentMethod === "cod" && orderStatus === "delivered") {
+      updateData.paymentStatus = "paid";
+    }
 
     // Set timestamps based on status
     switch (orderStatus) {
@@ -105,6 +113,38 @@ export async function PATCH(
       await sendOrderConfirmationEmail(orderEmailData);
       // Send to admin
       await sendOrderConfirmationEmail({ ...orderEmailData, customerEmail: "order@3dark.in" });
+    }
+
+    const shouldSendStatusEmail =
+      order.orderStatus !== orderStatus &&
+      ["sourcing", "packing", "shipped", "delivered"].includes(orderStatus);
+
+    if (shouldSendStatusEmail) {
+      const statusEmailData = {
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        orderStatus: updatedOrder.orderStatus,
+        total: updatedOrder.total,
+      };
+      await sendOrderStatusEmail(statusEmailData, orderStatus);
+      await sendOrderStatusEmail(
+        { ...statusEmailData, customerEmail: "order@3dark.in" },
+        orderStatus
+      );
+    }
+
+    if (order.orderStatus !== "delivered" && orderStatus === "delivered") {
+      const items = await prisma.orderItem.findMany({
+        where: { orderId: updatedOrder.id },
+        select: { name: true },
+      });
+      await sendReviewRequestEmail({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        items,
+      });
     }
 
     return NextResponse.json({ success: true, order: updatedOrder });

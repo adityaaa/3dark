@@ -57,6 +57,17 @@ export async function POST(req: Request) {
     
     console.log("✅ Validation passed");
 
+    if (!customerId && customer?.email) {
+      const customerRecord = await prisma.customer.findUnique({
+        where: { email: customer.email },
+        select: { id: true },
+      });
+      customerId = customerRecord?.id || null;
+      if (customerId) {
+        console.log("✅ Linked order to existing customer by email:", customerId);
+      }
+    }
+
     // Calculate totals
     const subtotal = items.reduce(
       (sum: number, item: any) => sum + item.price * item.qty,

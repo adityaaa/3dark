@@ -300,6 +300,18 @@ export async function sendOrderStatusEmail(
   newStatus: string
 ) {
   const statusMessages: Record<string, { title: string; message: string }> = {
+    confirmed: {
+      title: "Your order has been confirmed",
+      message: "Thanks for your patience! Your order is confirmed and moving forward.",
+    },
+    sourcing: {
+      title: "Your order is being sourced",
+      message: "We're sourcing your items and will pack them soon.",
+    },
+    packing: {
+      title: "Your order is being packed",
+      message: "Your items are being packed and will be shipped shortly.",
+    },
     processing: {
       title: "Your order is being processed",
       message: "We've started preparing your order and it will be shipped soon!",
@@ -525,6 +537,123 @@ export async function sendAdminOrderNotificationEmail(order: {
   return sendEmail({
     to: "order@3dark.in",
     subject: `New Order Received - ${order.orderNumber} | 3Dark`,
+    html,
+  });
+}
+
+export async function sendReviewRequestEmail(order: {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  items: Array<{ name: string }>;
+}) {
+  const itemList = order.items.map((item) => `<li>${item.name}</li>`).join("");
+  const accountUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/account`;
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Your Experience - ${order.orderNumber}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: #111827; padding: 32px 24px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">How was your order?</h1>
+              <p style="margin: 8px 0 0; color: #9ca3af; font-size: 14px;">Order #${order.orderNumber}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 28px 24px; color: #111827;">
+              <p style="margin: 0 0 12px;">Hi ${order.customerName},</p>
+              <p style="margin: 0 0 16px;">Your order has been delivered. We would love to hear your feedback.</p>
+              <p style="margin: 0 0 8px; font-weight: bold;">Items in your order:</p>
+              <ul style="margin: 0 0 16px; padding-left: 18px; color: #374151;">
+                ${itemList}
+              </ul>
+              <a href="${accountUrl}" style="display: inline-block; padding: 12px 20px; background-color: #111827; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Leave a review
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 24px; text-align: center; background-color: #111827; color: #9ca3af; font-size: 12px;">
+              © ${new Date().getFullYear()} 3Dark. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  return sendEmail({
+    to: order.customerEmail,
+    subject: `Share your experience - Order ${order.orderNumber} | 3Dark`,
+    html,
+  });
+}
+
+export async function sendAdminReviewNotificationEmail(review: {
+  orderNumber?: string | null;
+  productName: string;
+  rating: number;
+  title?: string | null;
+  comment: string;
+  customerName: string;
+  customerEmail?: string | null;
+}) {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Review - ${review.productName}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: #111827; padding: 28px 24px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: bold;">New customer review</h1>
+              <p style="margin: 8px 0 0; color: #9ca3af; font-size: 13px;">${review.productName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px; color: #111827;">
+              <p style="margin: 0 0 8px;"><strong>Rating:</strong> ${review.rating} / 5</p>
+              ${review.title ? `<p style="margin: 0 0 8px;"><strong>Title:</strong> ${review.title}</p>` : ""}
+              <p style="margin: 0 0 12px;"><strong>Comment:</strong> ${review.comment}</p>
+              <p style="margin: 0 0 6px;"><strong>Customer:</strong> ${review.customerName}${review.customerEmail ? ` (${review.customerEmail})` : ""}</p>
+              ${review.orderNumber ? `<p style="margin: 0;"><strong>Order:</strong> ${review.orderNumber}</p>` : ""}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 24px; text-align: center; background-color: #111827; color: #9ca3af; font-size: 12px;">
+              © ${new Date().getFullYear()} 3Dark. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  return sendEmail({
+    to: "order@3dark.in",
+    subject: `New review: ${review.productName} | 3Dark`,
     html,
   });
 }

@@ -15,11 +15,16 @@ export async function PATCH(
       where: { id: orderId },
     });
 
+    const resolvedPaymentStatus =
+      oldOrder?.paymentMethod === "cod" && orderStatus === "delivered"
+        ? "paid"
+        : paymentStatus;
+
     const order = await prisma.order.update({
       where: { id: orderId },
       data: {
         orderStatus,
-        paymentStatus,
+        paymentStatus: resolvedPaymentStatus,
       },
     });
 

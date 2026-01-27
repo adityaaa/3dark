@@ -20,16 +20,22 @@ export default async function ShopPage({
   searchParams: SearchParams;
 }>) {
   const { search, category, brand, minPrice, maxPrice, sortBy } = searchParams;
+  const isSqlite = process.env.DATABASE_URL?.startsWith("file:");
 
   // Build where clause based on filters
   const where: any = {};
   
   if (search) {
+    const containsFilter = (value: string) =>
+      isSqlite
+        ? { contains: value }
+        : { contains: value, mode: "insensitive" as const };
+
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
-      { brand: { contains: search, mode: "insensitive" } },
-      { category: { contains: search, mode: "insensitive" } },
+      { name: containsFilter(search) },
+      { description: containsFilter(search) },
+      { brand: containsFilter(search) },
+      { category: containsFilter(search) },
     ];
   }
   
